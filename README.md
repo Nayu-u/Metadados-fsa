@@ -1,6 +1,9 @@
 Para rodar o programa localmente é preciso seguir os 3 passos abaixo, desde que tenha o mínimo de permissões na máquina, qualquer um consegue fazer isso
 
 
+Para baixar todo o código sem precisar de comandos do git é so clicar no botão verde 'Code' e download ZIP
+
+
 1.
 Instalar o Python:
 
