@@ -1,0 +1,2468 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kingambit - Análise Forense de Imagens</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+    --fundo-profundo: #030307;
+    --fundo-card: #090911;
+    --borda-suave: #16162a;
+    --borda-foco: #2d2d54;
+    --dourado-marca: #d4a520;
+    --dourado-claro: #f1c40f;
+    --vermelho-marca: #c41a35;
+    --texto-principal: #e2e2e9;
+    --texto-mutado: #8888a2;
+    --cor-sucesso: #10b981;
+    --cor-alerta: #f59e0b;
+    --cor-perigo: #ef4444;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Outfit', sans-serif;
+    background-color: transparent; /* Permite que o fundo-cinematico apareça */
+    color: var(--texto-principal);
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+/* Fundo Cinemático de Gradiente Fluido (Não para de se mexer e é ultra-suave) */
+.fundo-cinematico {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #000000; /* Base preta sólida do fundo */
+    z-index: -1;
+    overflow: hidden;
+    pointer-events: none;
+    transform: translate3d(0, 0, 0); /* Força aceleração de hardware 3D */
+}
+
+.onda-wave {
+    position: absolute;
+    top: 0;
+    left: -4vw;
+    width: 108vw;
+    height: 200vh;
+    background: linear-gradient(
+        170deg,
+        #000000 0%,
+        #000000 10%,
+        #240409 15%,
+        #4A0E17 20%,
+        #4A0E17 35%,
+        #240409 40%,
+        #000000 45%,
+        #000000 60%,
+        #240409 65%,
+        #4A0E17 70%,
+        #4A0E17 85%,
+        #240409 90%,
+        #000000 95%,
+        #000000 100%
+    );
+    animation: subirOnda 24s linear infinite;
+    will-change: transform;
+    backface-visibility: hidden;
+    transform-style: preserve-3d;
+}
+
+@keyframes subirOnda {
+    0% {
+        transform: translate3d(0, 0, 0);
+    }
+    50% {
+        transform: translate3d(-3vw, -50vh, 0); /* Balanço lateral suave */
+    }
+    100% {
+        transform: translate3d(0, -100vh, 0);
+    }
+}
+
+
+/* Scrollbar estilizada */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+::-webkit-scrollbar-track {
+    background: var(--fundo-profundo);
+}
+::-webkit-scrollbar-thumb {
+    background: var(--borda-suave);
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: var(--borda-foco);
+}
+
+.topo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px 32px;
+    border-bottom: 1px solid var(--borda-suave);
+    position: sticky;
+    top: 0;
+    background-color: rgba(3, 3, 7, 0.85);
+    backdrop-filter: blur(12px);
+    z-index: 100;
+}
+
+.topo-esquerda {
+    position: absolute;
+    left: 32px;
+}
+
+.topo-centro {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.logo-img {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    object-fit: cover;
+    border: 1px solid var(--borda-suave);
+    box-shadow: 0 0 15px rgba(212, 165, 32, 0.2);
+    transition: transform 0.3s;
+}
+
+.logo-img:hover {
+    transform: rotate(10deg) scale(1.05);
+}
+
+.logo-texto {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--dourado-marca);
+    letter-spacing: 1.5px;
+    background: linear-gradient(135deg, var(--dourado-claro), var(--dourado-marca));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.menu-container {
+    position: relative;
+}
+
+.menu-hamburguer {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    cursor: pointer;
+    padding: 10px;
+    border-radius: 8px;
+    transition: background-color 0.3s;
+    border: 1px solid transparent;
+}
+
+.menu-hamburguer:hover {
+    background-color: var(--borda-suave);
+    border-color: var(--borda-foco);
+}
+
+.menu-hamburguer span {
+    display: block;
+    width: 20px;
+    height: 2px;
+    background-color: var(--texto-principal);
+    border-radius: 2px;
+    transition: 0.3s;
+}
+
+.menu-dropdown {
+    display: none;
+    position: absolute;
+    top: 50px;
+    left: 0;
+    background-color: var(--fundo-card);
+    border: 1px solid var(--borda-suave);
+    border-radius: 12px;
+    min-width: 200px;
+    overflow: hidden;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+    backdrop-filter: blur(20px);
+}
+
+.menu-dropdown.ativo {
+    display: block;
+    animation: surgindo 0.25s ease-out;
+}
+
+@keyframes surgindo {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.menu-item {
+    padding: 14px 20px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 14px;
+    color: var(--texto-mutado);
+    border-bottom: 1px solid var(--borda-suave);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.menu-item:last-child {
+    border-bottom: none;
+}
+
+.menu-item:hover {
+    background-color: var(--borda-suave);
+    color: var(--texto-principal);
+}
+
+.conteudo {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+}
+
+/* Área de Upload Premium */
+.upload-area {
+    border: 2px dashed var(--dourado-marca);
+    border-radius: 16px;
+    padding: 60px 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    background-color: var(--fundo-card);
+    margin-bottom: 32px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.upload-area::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(212, 165, 32, 0.02), rgba(196, 26, 53, 0.02));
+    opacity: 0;
+    transition: opacity 0.4s;
+}
+
+.upload-area:hover::before {
+    opacity: 1;
+}
+
+.upload-area:hover {
+    border-color: var(--dourado-claro);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(212, 165, 32, 0.1);
+}
+
+.upload-area.arrastando {
+    border-color: var(--dourado-claro);
+    background-color: rgba(212, 165, 32, 0.05);
+    transform: scale(0.99);
+}
+
+.upload-area.com-arquivo {
+    border-color: var(--cor-sucesso);
+    border-style: solid;
+    background-color: rgba(16, 185, 129, 0.02);
+}
+
+.upload-icone {
+    font-size: 48px;
+    margin-bottom: 16px;
+    display: inline-block;
+    transition: transform 0.3s;
+}
+
+.upload-area:hover .upload-icone {
+    transform: translateY(-5px);
+}
+
+.upload-texto {
+    font-size: 16px;
+    color: var(--texto-mutado);
+    font-weight: 500;
+}
+
+.upload-texto strong {
+    color: var(--texto-principal);
+}
+
+.upload-nome {
+    font-size: 14px;
+    color: var(--cor-sucesso);
+    margin-top: 12px;
+    font-weight: 600;
+    background-color: rgba(16, 185, 129, 0.1);
+    padding: 6px 16px;
+    border-radius: 20px;
+    display: inline-block;
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    animation: surgindo 0.3s ease-out;
+}
+
+.upload-input {
+    display: none;
+}
+
+/* Botão Único Centralizado e Imponente */
+.botoes-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 40px;
+}
+
+.btn-analise-completa {
+    padding: 18px 44px;
+    border: none;
+    background: linear-gradient(135deg, var(--vermelho-marca), #e74c3c);
+    color: #ffffff;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    letter-spacing: 1px;
+    box-shadow: 0 6px 24px rgba(196, 26, 53, 0.3);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-analise-completa::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(to bottom right, rgba(255,255,255,0.13), transparent);
+    transform: rotate(45deg);
+    transition: 0.3s;
+}
+
+.btn-analise-completa:hover:not(:disabled) {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 10px 30px rgba(196, 26, 53, 0.5);
+}
+
+.btn-analise-completa:active:not(:disabled) {
+    transform: translateY(-1px);
+}
+
+.btn-analise-completa:disabled {
+    background: var(--borda-suave);
+    color: var(--texto-mutado);
+    box-shadow: none;
+    cursor: not-allowed;
+    border: 1px solid var(--borda-foco);
+}
+
+/* Loader Premium */
+.carregando {
+    display: none;
+    text-align: center;
+    padding: 40px 24px;
+    background-color: var(--fundo-card);
+    border: 1px solid var(--borda-suave);
+    border-radius: 16px;
+    margin-bottom: 32px;
+}
+
+.carregando.ativo {
+    display: block;
+    animation: surgindo 0.3s ease-out;
+}
+
+.spinner-wrapper {
+    position: relative;
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 16px;
+}
+
+.spinner {
+    width: 100%;
+    height: 100%;
+    border: 4px solid var(--borda-suave);
+    border-top-color: var(--vermelho-marca);
+    border-radius: 50%;
+    animation: girar 1s linear infinite;
+}
+
+.spinner-pulsar {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 24px;
+    height: 24px;
+    background-color: var(--dourado-marca);
+    border-radius: 50%;
+    animation: pulsar 1.5s ease-in-out infinite;
+}
+
+@keyframes girar {
+    to { transform: rotate(360deg); }
+}
+
+@keyframes pulsar {
+    0% { transform: translate(-50%, -50%) scale(0.8); opacity: 0.5; }
+    50% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
+    100% { transform: translate(-50%, -50%) scale(0.8); opacity: 0.5; }
+}
+
+.carregando-texto {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--texto-principal);
+    letter-spacing: 0.5px;
+}
+
+.carregando-subtexto {
+    font-size: 13px;
+    color: var(--texto-mutado);
+    margin-top: 6px;
+}
+
+/* Erros */
+.erro-msg {
+    background-color: rgba(239, 68, 68, 0.08);
+    border: 1px solid var(--cor-perigo);
+    border-radius: 12px;
+    padding: 16px 24px;
+    color: var(--cor-perigo);
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 24px;
+    display: none;
+    align-items: center;
+    gap: 12px;
+}
+
+.erro-msg.visivel {
+    display: flex;
+    animation: surgindo 0.3s ease-out;
+}
+
+/* Cards Premium Gerais */
+.card-premium {
+    background-color: var(--fundo-card);
+    border: 1px solid var(--borda-suave);
+    border-radius: 16px;
+    padding: 28px;
+    margin-bottom: 32px;
+    box-shadow: 0 4px 30px rgba(0,0,0,0.4);
+    backdrop-filter: blur(10px);
+}
+
+.titulo-secao {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    letter-spacing: 0.5px;
+}
+
+.titulo-secao .icon {
+    font-size: 22px;
+}
+
+/* SEÇÃO 1: METADADOS (TOPO) - ABAS PREMIUM */
+.abas-metadados {
+    display: flex;
+    gap: 8px;
+    border-bottom: 1px solid var(--borda-suave);
+    margin-bottom: 24px;
+    padding-bottom: 1px;
+    overflow-x: auto;
+}
+
+.aba-btn {
+    padding: 12px 24px;
+    background: none;
+    border: none;
+    color: var(--texto-mutado);
+    font-family: 'Outfit', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: all 0.3s;
+    white-space: nowrap;
+    border-radius: 8px 8px 0 0;
+}
+
+.aba-btn:hover {
+    color: var(--texto-principal);
+    background-color: rgba(255,255,255,0.02);
+}
+
+.aba-btn.ativa {
+    color: var(--dourado-marca);
+    border-bottom-color: var(--dourado-marca);
+    background-color: rgba(212, 165, 32, 0.02);
+}
+
+.aba-painel {
+    display: none;
+}
+
+.aba-painel.ativa {
+    display: block;
+    animation: surgindo 0.35s ease-out;
+}
+
+/* Tabelas e cards internos */
+.meta-tabela {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.meta-tabela tr {
+    border-bottom: 1px solid var(--borda-suave);
+    transition: background-color 0.2s;
+}
+
+.meta-tabela tr:hover {
+    background-color: rgba(255,255,255,0.01);
+}
+
+.meta-tabela tr:last-child {
+    border-bottom: none;
+}
+
+.meta-tabela td {
+    padding: 12px 16px;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.meta-tabela td:first-child {
+    color: var(--texto-mutado);
+    width: 35%;
+    font-weight: 500;
+}
+
+.meta-tabela td:last-child {
+    color: var(--texto-principal);
+    font-family: 'Space Grotesk', sans-serif;
+}
+
+.indicio-card {
+    background-color: rgba(239, 68, 68, 0.05);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    transition: transform 0.2s;
+}
+
+.indicio-card:hover {
+    transform: translateX(4px);
+    border-color: rgba(239, 68, 68, 0.3);
+}
+
+.indicio-campo {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--cor-perigo);
+    letter-spacing: 0.5px;
+}
+
+.indicio-valor {
+    font-size: 13px;
+    color: var(--texto-principal);
+    font-family: 'Space Grotesk', sans-serif;
+}
+
+.indicio-motivo {
+    font-size: 13px;
+    color: var(--texto-mutado);
+    line-height: 1.4;
+}
+
+.meta-vazio {
+    text-align: center;
+    padding: 32px 24px;
+    color: var(--texto-mutado);
+    font-size: 14px;
+    background-color: rgba(255,255,255,0.01);
+    border-radius: 12px;
+    border: 1px solid var(--borda-suave);
+}
+
+/* SEÇÃO 2: ANÁLISE COMPLETA - BANCADA DE IAS */
+.bancada-ias-container {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 24px;
+    background-color: rgba(0,0,0,0.2);
+    border: 1px solid var(--borda-suave);
+    border-radius: 16px;
+    padding: 24px;
+    align-items: center;
+    margin-bottom: 32px;
+}
+
+.bancada-gauge-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+}
+
+.gauge-wrapper {
+    position: relative;
+    width: 180px;
+    height: 180px;
+}
+
+.gauge-svg {
+    transform: rotate(-90deg);
+    width: 100%;
+    height: 100%;
+}
+
+.gauge-fundo {
+    fill: none;
+    stroke: var(--borda-suave);
+    stroke-width: 8;
+}
+
+.gauge-progresso {
+    fill: none;
+    stroke-width: 8;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 1s cubic-bezier(0.4, 0, 0.2, 1), stroke 0.5s;
+}
+
+.gauge-centro {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.gauge-porcentagem {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 38px;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.gauge-label {
+    font-size: 11px;
+    color: var(--texto-mutado);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 600;
+    margin-top: 4px;
+}
+
+.bancada-status-badge {
+    padding: 8px 24px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-align: center;
+}
+
+.status-baixo {
+    background-color: rgba(16, 185, 129, 0.1);
+    color: var(--cor-sucesso);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.status-medio {
+    background-color: rgba(245, 158, 11, 0.1);
+    color: var(--cor-alerta);
+    border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.status-alto {
+    background-color: rgba(239, 68, 68, 0.1);
+    color: var(--cor-perigo);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    box-shadow: 0 0 15px rgba(239, 68, 68, 0.1);
+}
+
+.bancada-jurados {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-width: 0;
+}
+
+.bancada-subtitulo {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--texto-principal);
+    margin-bottom: 16px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+/* Layout da Bancada em Duas Linhas */
+.jurados-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+}
+
+.jurado-principal-card {
+    background: linear-gradient(135deg, rgba(212, 165, 32, 0.05), rgba(9, 9, 17, 0.95));
+    border: 2px solid var(--dourado-marca);
+    border-radius: 16px;
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 0 25px rgba(212, 165, 32, 0.12);
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s;
+}
+
+.jurado-principal-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 35px rgba(212, 165, 32, 0.2);
+    border-color: var(--dourado-claro);
+}
+
+.jurado-principal-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, var(--dourado-claro), var(--dourado-marca));
+}
+
+.jurado-principal-info {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-width: 75%;
+}
+
+.jurado-principal-badge {
+    align-self: flex-start;
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #000;
+    background: linear-gradient(135deg, var(--dourado-claro), var(--dourado-marca));
+    padding: 3px 10px;
+    border-radius: 4px;
+    margin-bottom: 4px;
+    box-shadow: 0 2px 8px rgba(212, 165, 32, 0.3);
+}
+
+.jurado-principal-nome {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--dourado-claro);
+}
+
+.jurado-principal-desc {
+    font-size: 12px;
+    color: var(--texto-mutado);
+    line-height: 1.4;
+}
+
+.jurado-principal-nota-box {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+}
+
+.jurado-principal-score {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 32px;
+    font-weight: 800;
+    line-height: 1;
+}
+
+.jurado-principal-peso {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--dourado-marca);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Jurados Auxiliares - 3 Colunas */
+.jurados-auxiliares-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.jurado-aux-card {
+    background-color: var(--fundo-profundo);
+    border: 1px solid var(--borda-suave);
+    border-radius: 12px;
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: all 0.2s;
+}
+
+.jurado-aux-card:hover {
+    border-color: var(--borda-foco);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+
+.jurado-aux-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.jurado-aux-nome {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--texto-principal);
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.jurado-aux-status {
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.jurado-aux-score {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.jurado-aux-peso {
+    font-size: 9px;
+    color: var(--texto-mutado);
+    text-align: right;
+    margin-top: 2px;
+}
+
+.jurado-inativo {
+    opacity: 0.4;
+}
+
+/* Tooltips explicativas premium */
+.ajuda-icone {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    background-color: #ffffff;
+    color: #030307;
+    border-radius: 50%;
+    font-size: 15px;
+    font-weight: 900;
+    cursor: help;
+    margin-left: 8px;
+    transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    vertical-align: middle;
+    border: 1px solid #ffffff;
+    box-shadow: 0 0 12px rgba(255, 255, 255, 0.7);
+}
+
+.ajuda-icone:hover {
+    background-color: #ffffff;
+    color: #000000;
+    border-color: #ffffff;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 1), 0 0 8px rgba(212, 165, 32, 0.5);
+    transform: scale(1.18);
+}
+
+.tooltip-container {
+    position: relative;
+    display: inline-block;
+}
+
+.tooltip-balao {
+    visibility: hidden;
+    width: 260px;
+    background-color: var(--fundo-card);
+    border: 1px solid var(--borda-foco);
+    color: var(--texto-principal);
+    text-align: left;
+    border-radius: 8px;
+    padding: 12px;
+    position: absolute;
+    z-index: 200;
+    bottom: 125%;
+    left: 50%;
+    margin-left: -130px;
+    opacity: 0;
+    transition: opacity 0.3s, transform 0.3s;
+    transform: translateY(10px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+    font-size: 12px;
+    line-height: 1.4;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 400;
+}
+
+.tooltip-balao::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: var(--borda-foco) transparent transparent transparent;
+}
+
+.tooltip-container:hover .tooltip-balao {
+    visibility: visible;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* SEÇÃO 2: ANÁLISE COMPLETA - MAPAS FORENSES FÍSICOS */
+.mapas-forenses-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 16px;
+    margin-bottom: 32px;
+}
+
+.mapas-forenses-grid > *:nth-child(1),
+.mapas-forenses-grid > *:nth-child(2) {
+    grid-column: span 3;
+}
+
+.mapas-forenses-grid > *:nth-child(3),
+.mapas-forenses-grid > *:nth-child(4),
+.mapas-forenses-grid > *:nth-child(5) {
+    grid-column: span 2;
+}
+
+@media (max-width: 768px) {
+    .mapas-forenses-grid {
+        grid-template-columns: 1fr;
+    }
+    .mapas-forenses-grid > * {
+        grid-column: span 1 !important;
+    }
+}
+
+.mapa-card-premium {
+    background-color: var(--fundo-profundo);
+    border: 1px solid var(--borda-suave);
+    border-radius: 14px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.mapa-card-premium:hover {
+    transform: translateY(-4px);
+    border-color: var(--borda-foco);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+}
+
+.mapa-img-container {
+    width: 100%;
+    aspect-ratio: 1;
+    overflow: hidden;
+    background-color: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    cursor: zoom-in;
+}
+
+.mapa-img-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s;
+}
+
+.mapa-card-premium:hover .mapa-img-container img {
+    transform: scale(1.05);
+}
+
+.mapa-info {
+    padding: 14px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.mapa-info h4 {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--texto-principal);
+}
+
+.mapa-info p {
+    font-size: 11px;
+    color: var(--texto-mutado);
+    line-height: 1.4;
+}
+
+/* SEÇÃO 2: ANÁLISE COMPLETA - MÉTRICAS FORENSES FÍSICAS */
+.metricas-forenses-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+    margin-bottom: 32px;
+}
+
+.metrica-card {
+    background-color: var(--fundo-profundo);
+    border: 1px solid var(--borda-suave);
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    position: relative;
+    overflow: hidden;
+}
+
+.metrica-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 4px;
+    background-color: var(--borda-suave);
+}
+
+.metrica-card.metrica-anomala::before {
+    background-color: var(--cor-perigo);
+}
+
+.metrica-valor {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--texto-principal);
+}
+
+.metrica-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--texto-mutado);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* EXPLICAÇÃO CONCLUSIVA E CAIXA DE AVISOS */
+.interpretacao-caixa-premium {
+    margin-top: 32px;
+}
+
+.interpretacao-resumo-caixa {
+    padding: 18px 24px;
+    border-radius: 14px;
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    line-height: 1.5;
+}
+
+.resumo-alto {
+    background-color: rgba(239, 68, 68, 0.08);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    color: var(--cor-perigo);
+    box-shadow: 0 0 15px rgba(239, 68, 68, 0.05);
+}
+
+.resumo-medio {
+    background-color: rgba(245, 158, 11, 0.08);
+    border: 1px solid rgba(245, 158, 11, 0.2);
+    color: var(--cor-alerta);
+}
+
+.resumo-baixo {
+    background-color: rgba(16, 185, 129, 0.08);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    color: var(--cor-sucesso);
+}
+
+.conclusoes-lista {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.conclusao-card {
+    background-color: var(--fundo-profundo);
+    border: 1px solid var(--borda-suave);
+    border-radius: 12px;
+    padding: 16px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    transition: transform 0.2s;
+}
+
+.conclusao-card:hover {
+    transform: translateX(4px);
+    border-color: var(--borda-foco);
+}
+
+.conclusao-topo {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.conclusao-area {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 700;
+    color: var(--texto-mutado);
+}
+
+.conclusao-severidade {
+    font-size: 10px;
+    padding: 2px 10px;
+    border-radius: 20px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.sev-alta {
+    background-color: rgba(239, 68, 68, 0.12);
+    color: var(--cor-perigo);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.sev-media {
+    background-color: rgba(245, 158, 11, 0.12);
+    color: var(--cor-alerta);
+    border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.sev-baixa {
+    background-color: rgba(16, 185, 129, 0.12);
+    color: var(--cor-sucesso);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.conclusao-indicador {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--texto-principal);
+}
+
+.conclusao-interpretacao {
+    font-size: 13px;
+    color: var(--texto-mutado);
+    line-height: 1.5;
+}
+
+.conclusao-valor {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 11px;
+    color: var(--texto-mutado);
+    background-color: rgba(255,255,255,0.02);
+    padding: 2px 8px;
+    border-radius: 4px;
+    display: inline-block;
+    align-self: flex-start;
+}
+
+/* Modais de Reviews */
+.modal-fundo {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.85);
+    z-index: 200;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 48px 24px;
+    overflow-y: auto;
+    backdrop-filter: blur(8px);
+}
+
+.modal-fundo.ativo {
+    display: flex;
+}
+
+.modal-conteudo {
+    background-color: var(--fundo-card);
+    border: 1px solid var(--borda-suave);
+    border-radius: 16px;
+    width: 100%;
+    max-width: 650px;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+}
+
+.modal-topo {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--borda-suave);
+    position: sticky;
+    top: 0;
+    background-color: var(--fundo-card);
+    border-radius: 16px 16px 0 0;
+    z-index: 10;
+}
+
+.modal-titulo {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--dourado-marca);
+}
+
+.modal-fechar {
+    font-size: 20px;
+    color: var(--texto-mutado);
+    cursor: pointer;
+    transition: color 0.3s;
+    background: none;
+    border: none;
+    font-family: 'Space Grotesk', sans-serif;
+}
+
+.modal-fechar:hover {
+    color: var(--cor-perigo);
+}
+
+.busca-reviews {
+    width: 100%;
+    padding: 14px 24px;
+    background-color: var(--fundo-profundo);
+    border: none;
+    border-bottom: 1px solid var(--borda-suave);
+    color: var(--texto-principal);
+    font-family: 'Outfit', sans-serif;
+    font-size: 14px;
+    outline: none;
+}
+
+.busca-reviews::placeholder {
+    color: var(--texto-mutado);
+}
+
+/* --- PREMIUM REVIEWS STYLING --- */
+.modal-conteudo-reviews {
+    max-width: 850px !important;
+}
+
+#listaReviews {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.review-card {
+    background: linear-gradient(145deg, rgba(13, 13, 25, 0.6) 0%, rgba(5, 5, 10, 0.4) 100%);
+    border: 1px solid var(--borda-suave);
+    border-radius: 12px;
+    padding: 16px 20px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.review-card:hover {
+    background: linear-gradient(145deg, rgba(20, 20, 35, 0.8) 0%, rgba(10, 10, 20, 0.6) 100%);
+    border-color: var(--borda-foco);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(74, 14, 23, 0.25);
+}
+
+.review-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+}
+
+.review-header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.review-icon {
+    font-size: 24px;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 8px;
+    border-radius: 10px;
+    border: 1px solid var(--borda-suave);
+    transition: transform 0.3s;
+}
+
+.review-card:hover .review-icon {
+    transform: scale(1.1) rotate(5deg);
+}
+
+.review-nome {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--texto-principal);
+    letter-spacing: 0.5px;
+}
+
+.review-data {
+    font-size: 12px;
+    color: var(--texto-mutado);
+    margin-top: 2px;
+}
+
+.review-header-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.tag-familiaridade {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 20px;
+    border: 1px solid transparent;
+}
+.tag-familiaridade.f-muito-alta {
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--cor-sucesso);
+    border-color: rgba(16, 185, 129, 0.2);
+}
+.tag-familiaridade.f-alta {
+    background: rgba(59, 130, 246, 0.1);
+    color: #3b82f6;
+    border-color: rgba(59, 130, 246, 0.2);
+}
+.tag-familiaridade.f-media {
+    background: rgba(245, 158, 11, 0.1);
+    color: var(--cor-alerta);
+    border-color: rgba(245, 158, 11, 0.2);
+}
+.tag-familiaridade.f-baixa {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--cor-perigo);
+    border-color: rgba(239, 68, 68, 0.2);
+}
+
+.tag-detalhes-toggle {
+    color: var(--texto-mutado);
+    font-size: 12px;
+    transition: transform 0.3s;
+}
+
+.review-card.aberto .tag-detalhes-toggle {
+    transform: rotate(180deg);
+    color: var(--dourado-marca);
+}
+
+.review-detalhes {
+    display: none;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--borda-suave);
+}
+
+.review-card.aberto .review-detalhes {
+    display: block;
+    animation: surgindo 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.laudo-banner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(90deg, rgba(74, 14, 23, 0.15) 0%, rgba(0, 0, 0, 0) 100%);
+    border-left: 3px solid var(--vermelho-marca);
+    padding: 10px 14px;
+    border-radius: 0 8px 8px 0;
+    margin-bottom: 16px;
+}
+
+.laudo-banner-titulo {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--vermelho-marca);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.laudo-banner-sub {
+    font-size: 11px;
+    color: var(--texto-mutado);
+    margin-top: 2px;
+}
+
+.laudo-perito-meta {
+    font-size: 12px;
+    color: var(--texto-mutado);
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    background: rgba(0, 0, 0, 0.15);
+    padding: 10px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--borda-suave);
+}
+
+.amostras-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-top: 16px;
+}
+
+@media (max-width: 768px) {
+    .amostras-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+@media (max-width: 480px) {
+    .amostras-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.amostra-card {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    padding: 10px;
+    text-align: center;
+    transition: all 0.2s;
+}
+
+.amostra-card:hover {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.amostra-titulo {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--texto-mutado);
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+}
+
+.amostra-veredicto {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 6px;
+    border-radius: 6px;
+    margin-bottom: 8px;
+    display: inline-block;
+    width: 100%;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.amostra-veredicto.v-real {
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--cor-sucesso);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    box-shadow: 0 0 8px rgba(16, 185, 129, 0.15);
+}
+
+.amostra-veredicto.v-ia {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--cor-perigo);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    box-shadow: 0 0 8px rgba(239, 68, 68, 0.15);
+}
+
+.amostra-metodo {
+    font-size: 10px;
+    color: var(--texto-mutado);
+    background: rgba(255, 255, 255, 0.02);
+    padding: 3px 6px;
+    border-radius: 4px;
+    display: inline-block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.sem-resultados {
+    text-align: center;
+    padding: 40px 24px;
+    color: var(--texto-mutado);
+    font-size: 14px;
+}
+
+/* Modal de Visualização Ampliada da Imagem */
+.modal-visualizador {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.95);
+    z-index: 300;
+    justify-content: center;
+    align-items: center;
+    padding: 24px;
+}
+
+.modal-visualizador.ativo {
+    display: flex;
+}
+
+.modal-visualizador-img {
+    max-width: 90%;
+    max-height: 90vh;
+    border-radius: 8px;
+    border: 1px solid var(--borda-suave);
+    box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+    object-fit: contain;
+}
+
+.modal-visualizador-fechar {
+    position: absolute;
+    top: 24px;
+    right: 24px;
+    color: var(--texto-principal);
+    font-size: 32px;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.modal-visualizador-fechar:hover {
+    color: var(--vermelho-marca);
+}
+
+@media (max-width: 768px) {
+    .bancada-ias-container {
+        grid-template-columns: 1fr;
+        gap: 24px;
+    }
+    .jurados-auxiliares-grid {
+        grid-template-columns: 1fr;
+    }
+    .jurado-principal-card {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+    }
+    .jurado-principal-info {
+        max-width: 100%;
+    }
+    .jurado-principal-nota-box {
+        align-items: flex-start;
+        width: 100%;
+        border-top: 1px solid var(--borda-suave);
+        padding-top: 12px;
+    }
+    .topo-esquerda {
+        left: 16px;
+    }
+    .topo {
+        padding: 16px;
+    }
+    .metricas-forenses-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+</head>
+<body>
+
+<div class="fundo-cinematico">
+    <div class="onda-wave"></div>
+</div>
+
+<div class="topo">
+    <div class="topo-esquerda">
+        <div class="menu-container">
+            <div class="menu-hamburguer" id="menuHamburguer">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            <div class="menu-dropdown" id="menuDropdown">
+                <div class="menu-item" id="menuReview">💬 Deixar review</div>
+                <div class="menu-item" id="menuVerReviews">👁️ Ver reviews</div>
+                <div class="menu-item" id="menuSobre">📖 Manual Sobre</div>
+            </div>
+        </div>
+    </div>
+    <div class="topo-centro">
+        <img src="/assets/kingambit.png" alt="Kingambit" class="logo-img">
+        <span class="logo-texto">Kingambit</span>
+    </div>
+</div>
+
+<div class="conteudo">
+    <div class="upload-area" id="uploadArea">
+        <div class="upload-icone">📂</div>
+        <div class="upload-texto" id="uploadTexto">Arraste ou clique para adicionar uma imagem para <strong>Análise Forense</strong></div>
+        <div class="upload-nome" id="uploadNome" style="display: none;"></div>
+        <input type="file" class="upload-input" id="uploadInput" accept="image/*">
+    </div>
+
+    <div class="botoes-container">
+        <button class="btn-analise-completa" id="btnAnalisar" disabled>
+            <span>🚀</span> Iniciar Análise Forense Completa
+        </button>
+    </div>
+
+    <div class="erro-msg" id="erroGeral">
+        <span>⚠️</span> <span id="erroTexto"></span>
+    </div>
+
+    <div class="carregando" id="carregando">
+        <div class="spinner-wrapper">
+            <div class="spinner"></div>
+            <div class="spinner-pulsar"></div>
+        </div>
+        <div class="carregando-texto">Executando Extração Física & Classificação...</div>
+        <div class="carregando-subtexto">Isso pode levar de 5 a 15 segundos dependendo do tamanho da imagem.</div>
+    </div>
+
+    <!-- PAINEL DE RESULTADOS UNIFICADO -->
+    <div class="resultado-geral" id="resultadoGeral" style="display: none;">
+        
+        <!-- SEÇÃO 1: METADADOS (TOPO) -->
+        <div class="card-premium" id="cardMetadados">
+            <h2 class="titulo-secao">
+                <span class="icon">📁</span> Metadados do Arquivo (ExifTool)
+                <div class="tooltip-container">
+                    <span class="ajuda-icone">?</span>
+                    <span class="tooltip-balao">Os metadados Exif são o "RG oculto" da foto. Guardam informações da câmera, data e hora, e se softwares de IA deixaram marcas no arquivo.</span>
+                </div>
+            </h2>
+            <div class="abas-metadados">
+                <button class="aba-btn ativa" data-indice="0" onclick="trocarAbaMetadados(0)">⚠️ Destaques de IA / Suspeitas</button>
+                <button class="aba-btn" data-indice="1" onclick="trocarAbaMetadados(1)">📸 Câmera & Equipamento</button>
+                <button class="aba-btn" data-indice="2" onclick="trocarAbaMetadados(2)">📝 Outros & Completo</button>
+            </div>
+            <div class="conteudo-aba-metadados">
+                <div class="aba-painel ativa" id="abaPainelIa"></div>
+                <div class="aba-painel" id="abaPainelCamera"></div>
+                <div class="aba-painel" id="abaPainelOutros"></div>
+            </div>
+        </div>
+
+        <!-- SEÇÃO 2: ANÁLISE COMPLETA (ABAIXO) -->
+        <div class="card-premium" id="cardAnaliseCompleta">
+            <h2 class="titulo-secao"><span class="icon">🔬</span> Análise Forense Completa</h2>
+            
+            <!-- PRIMEIRO ITEM: VEREDITO DA BANCADA DE IAS -->
+            <div class="bancada-ias-container">
+                <div class="bancada-gauge-box">
+                    <div class="gauge-wrapper">
+                        <svg class="gauge-svg" viewBox="0 0 100 100">
+                            <circle class="gauge-fundo" cx="50" cy="50" r="45"></circle>
+                            <circle class="gauge-progresso" id="gaugeProgresso" cx="50" cy="50" r="45" stroke-dasharray="283" stroke-dashoffset="283"></circle>
+                        </svg>
+                        <div class="gauge-centro">
+                            <span class="gauge-porcentagem" id="gaugeScore">0%</span>
+                            <span class="gauge-label">Veredito Geral</span>
+                        </div>
+                    </div>
+                    <div class="bancada-status-badge" id="bancadaStatusBadge">Calculando...</div>
+                </div>
+                
+                <div class="bancada-jurados">
+                    <h3 class="bancada-subtitulo">
+                        Júri de IAs — comitê de modelos especializados
+                        <div class="tooltip-container">
+                            <span class="ajuda-icone">?</span>
+                            <span class="tooltip-balao">Conselho de modelos neurais que analisam a imagem. A IA Principal possui o maior peso na composição do veredito final (peso 6x).</span>
+                        </div>
+                    </h3>
+                    <div class="jurados-layout">
+                        <!-- Primeira Linha: Modelo Principal -->
+                        <div id="juradoPrincipalContainer"></div>
+                        
+                        <!-- Segunda Linha: Três Modelos Auxiliares -->
+                        <div class="jurados-auxiliares-grid" id="juradosAuxiliaresGrid"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- SEGUNDO ITEM: MAPAS FORENSES FÍSICOS -->
+            <h3 class="bancada-subtitulo" style="margin-top: 36px; border-bottom: 1px solid var(--borda-suave); padding-bottom: 8px;">
+                <span class="icon">🖼️</span> Mapas de Sinais & Filtros Físicos
+                <div class="tooltip-container">
+                    <span class="ajuda-icone">?</span>
+                    <span class="tooltip-balao">Filtros matemáticos que iluminam marcas físicas invisíveis a olho nu, expondo colagens ou anomalias estruturais deixadas por computadores de IA.</span>
+                </div>
+            </h3>
+            <div class="mapas-forenses-grid">
+                <div class="mapa-card-premium">
+                    <div class="mapa-img-container" onclick="ampliarImagem(this)">
+                        <img id="mapaOriginal" src="" alt="Original">
+                    </div>
+                    <div class="mapa-info">
+                        <h4>Original</h4>
+                        <p>Imagem sob investigação forense.</p>
+                    </div>
+                </div>
+                <div class="mapa-card-premium">
+                    <div class="mapa-img-container" onclick="ampliarImagem(this)">
+                        <img id="mapaGradiente" src="" alt="Gradiente">
+                    </div>
+                    <div class="mapa-info">
+                        <h4>Gradiente</h4>
+                        <p>Transições físicas e bordas em canais de iluminação.</p>
+                    </div>
+                </div>
+                <div class="mapa-card-premium">
+                    <div class="mapa-img-container" onclick="ampliarImagem(this)">
+                        <img id="mapaEla" src="" alt="ELA">
+                    </div>
+                    <div class="mapa-info">
+                        <h4>Compressão (ELA)</h4>
+                        <p>Diferença do erro de compressão JPEG recomprimido.</p>
+                    </div>
+                </div>
+                <div class="mapa-card-premium">
+                    <div class="mapa-img-container" onclick="ampliarImagem(this)">
+                        <img id="mapaRuido" src="" alt="Ruído">
+                    </div>
+                    <div class="mapa-info">
+                        <h4>Ruído SRM</h4>
+                        <p>Extração do padrão de ruído de alta frequência (Filtro SRM).</p>
+                    </div>
+                </div>
+                <div class="mapa-card-premium">
+                    <div class="mapa-img-container" onclick="ampliarImagem(this)">
+                        <img id="mapaFft" src="" alt="FFT">
+                    </div>
+                    <div class="mapa-info">
+                        <h4>Frequências (FFT)</h4>
+                        <p>Simetria no espectro de Fourier bidimensional.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- TERCEIRO ITEM: ESTATÍSTICAS NUMÉRICAS -->
+            <h3 class="bancada-subtitulo" style="margin-top: 36px; border-bottom: 1px solid var(--borda-suave); padding-bottom: 8px;">
+                <span class="icon">📊</span> Métricas de Extração de Ruído & Gradientes
+                <div class="tooltip-container">
+                    <span class="ajuda-icone">?</span>
+                    <span class="tooltip-balao">Estatísticas dos pixels. Valores fora do padrão indicam anomalias matemáticas que raramente ocorrem em fotografias de lentes de câmeras reais.</span>
+                </div>
+            </h3>
+            <div class="metricas-forenses-grid" id="metricasForensesGrid">
+                <!-- Cards de métricas carregados dinamicamente -->
+            </div>
+
+            <!-- QUARTO ITEM: INTERPRETAÇÃO CONCLUSIVA -->
+            <h3 class="bancada-subtitulo" style="margin-top: 36px; border-bottom: 1px solid var(--borda-suave); padding-bottom: 8px;">
+                <span class="icon">🧠</span> Parecer Técnico Conclusivo
+                <div class="tooltip-container">
+                    <span class="ajuda-icone">?</span>
+                    <span class="tooltip-balao">Relatório forense automatizado que consolida todas as pistas físicas e inconsistências para emitir um veredito fundamentado.</span>
+                </div>
+            </h3>
+            <div class="interpretacao-caixa-premium" id="interpretacaoCaixa">
+                <div class="interpretacao-resumo-caixa" id="interpretacaoResumo"></div>
+                <div class="conclusoes-lista" id="conclusoesLista"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Reviews -->
+<div class="modal-fundo" id="modalReviews">
+    <div class="modal-conteudo modal-conteudo-reviews">
+        <div class="modal-topo">
+            <span class="modal-titulo">Análises de Reviews de Usuários</span>
+            <button class="modal-fechar" id="fecharModal">&#10005;</button>
+        </div>
+        <input type="text" class="busca-reviews" id="buscaReviews" placeholder="Buscar reviews por nome...">
+        <div id="listaReviews"></div>
+    </div>
+</div>
+
+<!-- Modal de Visualização Ampliada da Imagem -->
+<div class="modal-visualizador" id="modalVisualizador" onclick="fecharAmpliador()">
+    <span class="modal-visualizador-fechar">&#10005;</span>
+    <img class="modal-visualizador-img" id="imagemAmpliada">
+</div>
+
+<script>
+var arquivoAtual = null;
+
+var uploadArea = document.getElementById('uploadArea');
+var uploadInput = document.getElementById('uploadInput');
+var uploadTexto = document.getElementById('uploadTexto');
+var uploadNome = document.getElementById('uploadNome');
+var btnAnalisar = document.getElementById('btnAnalisar');
+var carregando = document.getElementById('carregando');
+var erroGeral = document.getElementById('erroGeral');
+var erroTexto = document.getElementById('erroTexto');
+var menuHamburguer = document.getElementById('menuHamburguer');
+var menuDropdown = document.getElementById('menuDropdown');
+var resultadoGeral = document.getElementById('resultadoGeral');
+
+uploadArea.addEventListener('click', function() { uploadInput.click(); });
+
+uploadArea.addEventListener('dragover', function(e) {
+    e.preventDefault();
+    uploadArea.classList.add('arrastando');
+});
+
+uploadArea.addEventListener('dragleave', function() {
+    uploadArea.classList.remove('arrastando');
+});
+
+uploadArea.addEventListener('drop', function(e) {
+    e.preventDefault();
+    uploadArea.classList.remove('arrastando');
+    if (e.dataTransfer.files.length > 0) selecionarArquivo(e.dataTransfer.files[0]);
+});
+
+uploadInput.addEventListener('change', function() {
+    if (uploadInput.files.length > 0) selecionarArquivo(uploadInput.files[0]);
+});
+
+function selecionarArquivo(arquivo) {
+    arquivoAtual = arquivo;
+    uploadNome.textContent = arquivo.name;
+    uploadNome.style.display = 'inline-block';
+    uploadArea.classList.add('com-arquivo');
+    uploadTexto.innerHTML = 'Imagem carregada com sucesso! Clique novamente para alterar.';
+    btnAnalisar.disabled = false;
+    esconderErro();
+    resultadoGeral.style.display = 'none';
+}
+
+function mostrarCarregando() { carregando.classList.add('ativo'); }
+function esconderCarregando() { carregando.classList.remove('ativo'); }
+function mostrarErro(msg) { erroTexto.textContent = msg; erroGeral.classList.add('visivel'); }
+function esconderErro() { erroGeral.classList.remove('visivel'); }
+
+function escapeHtml(texto) {
+    var div = document.createElement('div');
+    div.appendChild(document.createTextNode(texto));
+    return div.innerHTML;
+}
+
+function criarTabela(dados) {
+    if (!dados || Object.keys(dados).length === 0) {
+        return '<div class="meta-vazio">Nenhum dado encontrado nesta categoria</div>';
+    }
+    var html = '<table class="meta-tabela">';
+    var chaves = Object.keys(dados);
+    for (var i = 0; i < chaves.length; i++) {
+        html += '<tr><td>' + escapeHtml(chaves[i]) + '</td><td>' + escapeHtml(String(dados[chaves[i]])) + '</td></tr>';
+    }
+    html += '</table>';
+    return html;
+}
+
+function trocarAbaMetadados(indice) {
+    var abas = document.querySelectorAll('.aba-btn');
+    var paineis = document.querySelectorAll('.aba-painel');
+    
+    for (var i = 0; i < abas.length; i++) {
+        abas[i].classList.remove('ativa');
+        paineis[i].classList.remove('ativa');
+    }
+    
+    abas[indice].classList.add('ativa');
+    paineis[indice].classList.add('ativa');
+}
+
+// Menu Hamburguer
+menuHamburguer.addEventListener('click', function(e) {
+    e.stopPropagation();
+    menuDropdown.classList.toggle('ativo');
+});
+
+document.addEventListener('click', function() {
+    menuDropdown.classList.remove('ativo');
+});
+
+document.getElementById('menuReview').addEventListener('click', function() {
+    fetch('/formulario')
+        .then(function(r) { return r.json(); })
+        .then(function(d) { window.open(d.link, '_blank'); });
+});
+
+document.getElementById('menuSobre').addEventListener('click', function() {
+    window.open('/assets/sobre.pdf', '_blank');
+});
+
+document.getElementById('menuVerReviews').addEventListener('click', function() {
+    abrirModalReviews();
+});
+
+document.getElementById('fecharModal').addEventListener('click', function() {
+    document.getElementById('modalReviews').classList.remove('ativo');
+});
+
+document.getElementById('modalReviews').addEventListener('click', function(e) {
+    if (e.target === this) this.classList.remove('ativo');
+});
+
+var dadosReviews = [];
+
+function abrirModalReviews() {
+    var modal = document.getElementById('modalReviews');
+    var lista = document.getElementById('listaReviews');
+    modal.classList.add('ativo');
+    lista.innerHTML = '<div class="carregando ativo"><div class="spinner-wrapper"><div class="spinner"></div></div><div class="carregando-texto">Carregando reviews...</div></div>';
+
+    fetch('/respostas')
+        .then(function(r) { return r.json(); })
+        .then(function(d) {
+            if (d.erro) {
+                lista.innerHTML = '<div class="sem-resultados">' + d.erro + '</div>';
+                return;
+            }
+            dadosReviews = d.dados;
+            renderizarReviews(dadosReviews, d.colunas);
+        })
+        .catch(function() {
+            lista.innerHTML = '<div class="sem-resultados">Erro ao carregar reviews</div>';
+        });
+}
+
+function renderizarReviews(dados, colunas) {
+    var lista = document.getElementById('listaReviews');
+    if (dados.length === 0) {
+        lista.innerHTML = '<div class="sem-resultados">Nenhuma review encontrada</div>';
+        return;
+    }
+
+    // Identificar colunas especiais de forma resiliente e flexivel
+    var colNome = colunas.find(function(c) { return c.toLowerCase().indexOf('nome') !== -1; }) || colunas[1] || '';
+    var colData = colunas.find(function(c) { return c.toLowerCase().indexOf('carimbo') !== -1 || c.toLowerCase().indexOf('data') !== -1 || c.toLowerCase().indexOf('hora') !== -1; }) || colunas[0] || '';
+    var colInternet = colunas.find(function(c) { return c.toLowerCase().indexOf('conectado') !== -1 || c.toLowerCase().indexOf('internet') !== -1; }) || '';
+    var colFamiliaridade = colunas.find(function(c) { return c.toLowerCase().indexOf('familiaridade') !== -1; }) || '';
+
+    // Filtrar colunas das 8 fotos/amostras
+    var colClassificacoes = colunas.filter(function(c) {
+        var cl = c.toLowerCase();
+        return (cl.indexOf('classifica') !== -1 || cl.indexOf('origem') !== -1) && cl.indexOf('método') === -1 && cl.indexOf('metodo') === -1;
+    });
+    var colMetodos = colunas.filter(function(c) {
+        var cl = c.toLowerCase();
+        return cl.indexOf('método') !== -1 || cl.indexOf('metodo') !== -1;
+    });
+
+    dados.sort(function(a, b) {
+        var nomeA = (a[colNome] || '').toString().toLowerCase();
+        var nomeB = (b[colNome] || '').toString().toLowerCase();
+        return nomeA.localeCompare(nomeB);
+    });
+
+    // Encurtadores inteligentes para polimento e elegância visual
+    function encurtarFamiliaridade(fam) {
+        if (!fam) return 'Média';
+        var f = fam.toString();
+        if (f.indexOf('5 -') !== -1) return 'Muito Alta (Especialista)';
+        if (f.indexOf('4 -') !== -1) return 'Alta';
+        if (f.indexOf('3 -') !== -1) return 'Média';
+        if (f.indexOf('2 -') !== -1) return 'Baixa';
+        if (f.indexOf('1 -') !== -1) return 'Muito Baixa';
+        if (f.length > 25) return f.split(':')[0] || f.substring(0, 25);
+        return f;
+    }
+
+    function encurtarMetodo(metodo) {
+        if (!metodo) return 'Não Informado';
+        var m = metodo.toString();
+        if (m.indexOf('Percepção visual') !== -1) return '👁️ Visão Humana';
+        if (m.indexOf('Metadados') !== -1) return '📂 Metadados / EXIF';
+        if (m.indexOf('ELA') !== -1 || m.indexOf('Error') !== -1) return '🔍 Análise ELA';
+        if (m.indexOf('SRM') !== -1 || m.indexOf('Ruído') !== -1) return '🌊 Ruído SRM';
+        if (m.indexOf('FFT') !== -1 || m.indexOf('Frequência') !== -1) return '⚡ Filtro FFT';
+        return m.substring(0, 24);
+    }
+
+    function formatarData(dataStr) {
+        if (!dataStr) return '';
+        try {
+            var d = new Date(dataStr.replace(/-/g, '/'));
+            if (isNaN(d.getTime())) {
+                return dataStr.split('.')[0] || dataStr;
+            }
+            var dia = String(d.getDate()).padStart(2, '0');
+            var mes = String(d.getMonth() + 1).padStart(2, '0');
+            var ano = d.getFullYear();
+            var horas = String(d.getHours()).padStart(2, '0');
+            var minutos = String(d.getMinutes()).padStart(2, '0');
+            return dia + '/' + mes + '/' + ano + ' às ' + horas + ':' + minutos;
+        } catch(e) {
+            return dataStr;
+        }
+    }
+
+    var html = '';
+    for (var i = 0; i < dados.length; i++) {
+        var item = dados[i];
+        var nome = item[colNome] || 'Anônimo';
+        var dataOriginal = item[colData] || '';
+        var dataFmt = formatarData(dataOriginal);
+        var internet = item[colInternet] || 'Não informada';
+        var familiaridadeOriginal = item[colFamiliaridade] || '';
+        var familiaridadeFmt = encurtarFamiliaridade(familiaridadeOriginal);
+
+        var famClass = 'f-media';
+        var famLower = familiaridadeFmt.toLowerCase();
+        if (famLower.indexOf('muito alta') !== -1 || famLower.indexOf('especialista') !== -1) famClass = 'f-muito-alta';
+        else if (famLower.indexOf('alta') !== -1) famClass = 'f-alta';
+        else if (famLower.indexOf('baixa') !== -1) famClass = 'f-baixa';
+
+        var totalReal = 0;
+        var totalIA = 0;
+        for (var k = 0; k < colClassificacoes.length; k++) {
+            var valClass = (item[colClassificacoes[k]] || '').toString();
+            if (valClass.indexOf('procedência real') !== -1 || valClass.toLowerCase().indexOf('real') !== -1) {
+                totalReal++;
+            } else if (valClass.indexOf('manipulação') !== -1 || valClass.toLowerCase().indexOf('artificial') !== -1 || valClass.toLowerCase().indexOf('ia') !== -1) {
+                totalIA++;
+            }
+        }
+
+        html += '<div class="review-card" onclick="toggleReview(' + i + ', event)">';
+        
+        // Header (Cabeçalho do Perito)
+        html += '  <div class="review-header">';
+        html += '    <div class="review-header-left">';
+        html += '      <span class="review-icon">🕵️‍♂️</span>';
+        html += '      <div>';
+        html += '        <div class="review-nome">' + escapeHtml(nome.toString()) + '</div>';
+        html += '        <div class="review-data">' + escapeHtml(dataFmt) + '</div>';
+        html += '      </div>';
+        html += '    </div>';
+        html += '    <div class="review-header-right">';
+        html += '      <span class="tag-familiaridade ' + famClass + '">' + escapeHtml(familiaridadeFmt) + '</span>';
+        html += '      <span class="tag-detalhes-toggle">▼</span>';
+        html += '    </div>';
+        html += '  </div>';
+
+        // Detalhes Expandidos (O Laudo Pericial)
+        html += '  <div class="review-detalhes" id="review-' + i + '" onclick="event.stopPropagation()">';
+        
+        html += '    <div class="laudo-banner">';
+        html += '      <div>';
+        html += '        <div class="laudo-banner-titulo">Laudo Técnico Pericial</div>';
+        html += '        <div class="laudo-banner-sub">Comitê de identificação cognitiva de artefatos de IA</div>';
+        html += '      </div>';
+        html += '      <div style="text-align: right;">';
+        html += '        <div style="font-size: 11px; font-weight: 700; color: var(--dourado-marca); letter-spacing: 0.5px;">CLASSIFICAÇÕES</div>';
+        html += '        <div style="font-size: 11px; color: var(--texto-mutado); margin-top: 2px; font-weight: 500;">🟢 ' + totalReal + ' Real | 🔴 ' + totalIA + ' IA</div>';
+        html += '      </div>';
+        html += '    </div>';
+
+        html += '    <div class="laudo-perito-meta">';
+        html += '      <div><strong>Familiaridade:</strong> ' + escapeHtml(familiaridadeOriginal.toString()) + '</div>';
+        html += '      <div style="margin-left: auto;"><strong>Internet:</strong> ' + escapeHtml(internet.toString()) + '</div>';
+        html += '    </div>';
+
+        // Grid das 8 Fotos / Amostras
+        html += '    <div class="amostras-grid">';
+        for (var j = 0; j < 8; j++) {
+            var colClass = colClassificacoes[j];
+            var colMet = colMetodos[j];
+
+            var valorClass = colClass ? (item[colClass] || '') : '';
+            var valorMet = colMet ? (item[colMet] || '') : '';
+
+            var isReal = valorClass.indexOf('procedência real') !== -1 || valorClass.toLowerCase().indexOf('real') !== -1;
+            var labelClass = isReal ? '🟢 REAL' : '🔴 IA / SINTÉTICA';
+            var classStyle = isReal ? 'v-real' : 'v-ia';
+
+            html += '      <div class="amostra-card">';
+            html += '        <div class="amostra-titulo">AMOSTRA #' + (j + 1) + '</div>';
+            html += '        <div class="amostra-veredicto ' + classStyle + '">' + labelClass + '</div>';
+            html += '        <div class="amostra-metodo" title="' + escapeHtml(valorMet.toString()) + '">' + escapeHtml(encurtarMetodo(valorMet)) + '</div>';
+            html += '      </div>';
+        }
+        html += '    </div>';
+
+        html += '  </div>';
+        html += '</div>';
+    }
+    lista.innerHTML = html;
+}
+
+function toggleReview(idx, event) {
+    if (event) {
+        var card = event.currentTarget;
+        card.classList.toggle('aberto');
+    } else {
+        var el = document.getElementById('review-' + idx);
+        if (el) {
+            var card = el.closest('.review-card');
+            if (card) card.classList.toggle('aberto');
+        }
+    }
+}
+
+document.getElementById('buscaReviews').addEventListener('input', function() {
+    var termo = this.value.toLowerCase();
+    var cards = document.querySelectorAll('.review-card');
+    for (var i = 0; i < cards.length; i++) {
+        var nome = cards[i].querySelector('.review-nome').textContent.toLowerCase();
+        cards[i].style.display = nome.indexOf(termo) !== -1 ? 'block' : 'none';
+    }
+});
+
+// Ampliador de Imagens Forenses
+function ampliarImagem(container) {
+    var img = container.querySelector('img');
+    var modal = document.getElementById('modalVisualizador');
+    var imagemAmpliada = document.getElementById('imagemAmpliada');
+    imagemAmpliada.src = img.src;
+    modal.classList.add('ativo');
+}
+
+function fecharAmpliador() {
+    document.getElementById('modalVisualizador').classList.remove('ativo');
+}
+
+// ATUALIZAÇÃO DO GAUGE CIRCULAR
+function atualizarGauge(score) {
+    var progresso = document.getElementById('gaugeProgresso');
+    var txtScore = document.getElementById('gaugeScore');
+    var statusBadge = document.getElementById('bancadaStatusBadge');
+    
+    // Perimetro do circulo com r=45 é 2 * PI * 45 ≈ 283
+    var perimetro = 283;
+    var offset = perimetro - (score / 100) * perimetro;
+    
+    progresso.style.strokeDashoffset = offset;
+    txtScore.textContent = score + '%';
+    
+    // Determina cores e badges com base no veredito
+    progresso.style.stroke = 'var(--cor-sucesso)';
+    statusBadge.className = 'bancada-status-badge status-baixo';
+    statusBadge.textContent = 'Autenticidade Confirmada';
+    
+    if (score >= 70) {
+        progresso.style.stroke = 'var(--cor-perigo)';
+        statusBadge.className = 'bancada-status-badge status-alto';
+        statusBadge.textContent = 'Forte Suspeita de IA';
+    } else if (score >= 40) {
+        progresso.style.stroke = 'var(--cor-alerta)';
+        statusBadge.className = 'bancada-status-badge status-medio';
+        statusBadge.textContent = 'Dúvida Razoável (Editar)';
+    }
+}
+
+// CHAMADA AJAX PARA ANÁLISE COMPLETA UNIFICADA
+btnAnalisar.addEventListener('click', function() {
+    if (!arquivoAtual) return;
+    esconderErro();
+    mostrarCarregando();
+    resultadoGeral.style.display = 'none';
+
+    var fd = new FormData();
+    fd.append('file', arquivoAtual);
+
+    fetch('/analyze/full', { method: 'POST', body: fd })
+        .then(function(r) { return r.json(); })
+        .then(function(d) {
+            esconderCarregando();
+            if (d.erro) { mostrarErro(d.erro); return; }
+
+            // 1. POPULAR SEÇÃO 1: METADADOS (com abas de ordem estrita)
+            var cat = d.categorias;
+            
+            // Aba 1: Destaques de IA / Suspeitas
+            var painelIa = document.getElementById('abaPainelIa');
+            var htmlIa = '';
+            if (cat.indicios_ia && cat.indicios_ia.length > 0) {
+                for (var i = 0; i < cat.indicios_ia.length; i++) {
+                    var ind = cat.indicios_ia[i];
+                    htmlIa += '<div class="indicio-card">';
+                    htmlIa += '<div class="indicio-campo">' + escapeHtml(ind.campo) + '</div>';
+                    htmlIa += '<div class="indicio-valor">' + escapeHtml(String(ind.valor)) + '</div>';
+                    htmlIa += '<div class="indicio-motivo">' + escapeHtml(ind.motivo) + '</div>';
+                    htmlIa += '</div>';
+                }
+            }
+            if (cat.ia && Object.keys(cat.ia).length > 0) {
+                htmlIa += criarTabela(cat.ia);
+            }
+            if ((!cat.indicios_ia || cat.indicios_ia.length === 0) && (!cat.ia || Object.keys(cat.ia).length === 0)) {
+                htmlIa += '<div class="meta-vazio">Nenhum metadado de IA suspeito encontrado. A imagem pode ser autêntica ou os metadados foram totalmente removidos.</div>';
+            }
+            painelIa.innerHTML = htmlIa;
+
+            // Aba 2: Câmera & Equipamento
+            var painelCamera = document.getElementById('abaPainelCamera');
+            var htmlCamera = '';
+            if (cat.camera && Object.keys(cat.camera).length > 0) {
+                htmlCamera += criarTabela(cat.camera);
+            } else {
+                htmlCamera += '<div class="meta-vazio">Nenhum metadado de câmera/equipamento encontrado.</div>';
+            }
+            painelCamera.innerHTML = htmlCamera;
+
+            // Aba 3: Outros & Completo
+            var painelOutros = document.getElementById('abaPainelOutros');
+            painelOutros.innerHTML = criarTabela(d.exif);
+
+            // Resetar aba metadados para a primeira ativa
+            trocarAbaMetadados(0);
+
+            // 2. POPULAR SEÇÃO 2: ANÁLISE COMPLETA - BANCADA DE IAS (Modelo Principal + Modelos Auxiliares)
+            var bancada = d.bancada;
+            atualizarGauge(bancada.media_geral);
+            
+            var containerPrincipal = document.getElementById('juradoPrincipalContainer');
+            var containerAuxiliares = document.getElementById('juradosAuxiliaresGrid');
+            
+            // IA Principal (Modelo 2)
+            var dadosPrincipal = bancada.modelos['modelo_2'];
+            var htmlPrincipal = '';
+            
+            if (dadosPrincipal) {
+                var corTextoPri = 'var(--cor-sucesso)';
+                var textoNivelPri = 'Risco Baixo';
+                if (dadosPrincipal.nivel === 'Alto') {
+                    corTextoPri = 'var(--cor-perigo)';
+                    textoNivelPri = 'Risco Alto';
+                } else if (dadosPrincipal.nivel === 'Medio') {
+                    corTextoPri = 'var(--cor-alerta)';
+                    textoNivelPri = 'Risco Médio';
+                }
+                
+                htmlPrincipal += '<div class="jurado-principal-card">';
+                htmlPrincipal += '  <div class="jurado-principal-info">';
+                htmlPrincipal += '    <div class="jurado-principal-badge">👑 MODELO RECOMENDADO</div>';
+                htmlPrincipal += '    <span class="jurado-principal-nome">' + escapeHtml(dadosPrincipal.nome) + '</span>';
+                htmlPrincipal += '    <span class="jurado-principal-desc">É o melhor modelo do sistema e tem a melhor análise em todas as categorias.</span>';
+                htmlPrincipal += '  </div>';
+                htmlPrincipal += '  <div class="jurado-principal-nota-box">';
+                htmlPrincipal += '    <span class="jurado-principal-score" style="color: ' + corTextoPri + '">' + dadosPrincipal.score + '%</span>';
+                htmlPrincipal += '    <span class="jurado-principal-status" style="color: ' + corTextoPri + '; font-weight: 700; font-size: 13px;">' + textoNivelPri + '</span>';
+                htmlPrincipal += '    <span class="jurado-principal-peso">Peso: ' + dadosPrincipal.peso + 'x</span>';
+                htmlPrincipal += '  </div>';
+                htmlPrincipal += '</div>';
+            } else {
+                htmlPrincipal += '<div class="jurado-principal-card jurado-inativo">';
+                htmlPrincipal += '  <div class="jurado-principal-info">';
+                htmlPrincipal += '    <div class="jurado-principal-badge" style="background: var(--texto-mutado); color: var(--fundo-card);">INDISPONÍVEL</div>';
+                htmlPrincipal += '    <span class="jurado-principal-nome" style="color: var(--texto-mutado)">IA Principal</span>';
+                htmlPrincipal += '    <span class="jurado-principal-desc">É o melhor modelo do sistema e tem a melhor análise em todas as categorias. Copie o arquivo "modelo_2.pth" para a raiz para ativar.</span>';
+                htmlPrincipal += '  </div>';
+                htmlPrincipal += '  <div class="jurado-principal-nota-box">';
+                htmlPrincipal += '    <span class="jurado-principal-score" style="color: var(--texto-mutado)">--%</span>';
+                htmlPrincipal += '    <span class="jurado-principal-peso">Peso: 6x</span>';
+                htmlPrincipal += '  </div>';
+                htmlPrincipal += '</div>';
+            }
+            containerPrincipal.innerHTML = htmlPrincipal;
+            
+            // Modelos Complementares (Modelos 1, 3 e 4)
+            var modelosAuxiliares = [
+                { id: 'modelo_1', padrao: 'IA Geral' },
+                { id: 'modelo_3', padrao: 'IA Multicategoria' },
+                { id: 'modelo_4', padrao: 'IA Face Detection' }
+            ];
+            
+            var tooltipsAux = {
+                'modelo_1': 'Análise de ruído macro e artefatos de compressão.',
+                'modelo_3': 'Identificação de anomalias em objetos, cenários e vegetação.',
+                'modelo_4': 'Detecção e análise forense de rostos e retratos sintéticos.'
+            };
+            
+            var htmlAuxiliares = '';
+            for (var m = 0; m < modelosAuxiliares.length; m++) {
+                var mod = modelosAuxiliares[m];
+                var dadosMod = bancada.modelos[mod.id];
+                var tooltipTexto = tooltipsAux[mod.id];
+                
+                if (dadosMod) {
+                    var corTexto = 'var(--cor-sucesso)';
+                    var textoNivel = 'Risco Baixo';
+                    if (dadosMod.nivel === 'Alto') {
+                        corTexto = 'var(--cor-perigo)';
+                        textoNivel = 'Risco Alto';
+                    } else if (dadosMod.nivel === 'Medio') {
+                        corTexto = 'var(--cor-alerta)';
+                        textoNivel = 'Risco Médio';
+                    }
+                    
+                    htmlAuxiliares += '<div class="jurado-aux-card">';
+                    htmlAuxiliares += '  <div class="jurado-aux-info">';
+                    htmlAuxiliares += '    <span class="jurado-aux-nome">' + escapeHtml(dadosMod.nome);
+                    htmlAuxiliares += '      <div class="tooltip-container">';
+                    htmlAuxiliares += '        <span class="ajuda-icone">?</span>';
+                    htmlAuxiliares += '        <span class="tooltip-balao">' + escapeHtml(tooltipTexto) + '</span>';
+                    htmlAuxiliares += '      </div>';
+                    htmlAuxiliares += '    </span>';
+                    htmlAuxiliares += '    <span class="jurado-aux-status" style="color: ' + corTexto + '">' + textoNivel + '</span>';
+                    htmlAuxiliares += '    <span class="jurado-aux-peso">Peso: ' + dadosMod.peso + 'x</span>';
+                    htmlAuxiliares += '  </div>';
+                    htmlAuxiliares += '  <div class="jurado-aux-score" style="color: ' + corTexto + '">' + dadosMod.score + '%</div>';
+                    htmlAuxiliares += '</div>';
+                } else {
+                    htmlAuxiliares += '<div class="jurado-aux-card jurado-inativo">';
+                    htmlAuxiliares += '  <div class="jurado-aux-info">';
+                    htmlAuxiliares += '    <span class="jurado-aux-nome">' + escapeHtml(mod.padrao);
+                    htmlAuxiliares += '      <div class="tooltip-container">';
+                    htmlAuxiliares += '        <span class="ajuda-icone">?</span>';
+                    htmlAuxiliares += '        <span class="tooltip-balao">' + escapeHtml(tooltipTexto) + '</span>';
+                    htmlAuxiliares += '      </div>';
+                    htmlAuxiliares += '    </span>';
+                    htmlAuxiliares += '    <span class="jurado-aux-status" style="color: var(--texto-mutado)">Indisponível</span>';
+                    htmlAuxiliares += '  </div>';
+                    htmlAuxiliares += '  <div class="jurado-aux-score" style="color: var(--texto-mutado)">--%</div>';
+                    htmlAuxiliares += '</div>';
+                }
+            }
+            containerAuxiliares.innerHTML = htmlAuxiliares;
+
+            // 3. POPULAR SEÇÃO 2: ANÁLISE COMPLETA - MAPAS FÍSICOS
+            var urlOriginal = URL.createObjectURL(arquivoAtual);
+            document.getElementById('mapaOriginal').src = urlOriginal;
+            document.getElementById('mapaEla').src = 'data:image/png;base64,' + d.ela;
+            document.getElementById('mapaRuido').src = 'data:image/png;base64,' + d.forense.mapa_ruido_b64;
+            document.getElementById('mapaGradiente').src = 'data:image/png;base64,' + d.forense.mapa_gradiente_b64;
+            document.getElementById('mapaFft').src = 'data:image/png;base64,' + d.forense.fft_mapa_b64;
+
+            // 4. POPULAR SEÇÃO 2: ANÁLISE COMPLETA - MÉTRICAS FORENSES FÍSICAS
+            var forense = d.forense;
+            var metricasGrid = document.getElementById('metricasForensesGrid');
+            var htmlMetricas = '';
+            
+            var metricasDicionario = [
+                { v: forense.variancia_ruido, l: 'Variância Ruído SRM', threshold: 3, rule: 'abaixo', desc: 'Indica uniformidade anormal se menor que 3.0' },
+                { v: forense.fft_simetria, l: 'Simetria Fourier (FFT)', threshold: 0.95, rule: 'acima', desc: 'Acima de 0.95 sugere ruído de grade artificial' },
+                { v: forense.aberracao_cromatica, l: 'Aberração Cromática', threshold: 0.03, rule: 'abaixo', desc: 'Falta de desalinhamento óptico comum em IA' },
+                { v: forense.correlacao_rgb.rg, l: 'Correlação R-G', threshold: 0.98, rule: 'acima', desc: 'Canais redundantes se acima de 0.98' },
+                { v: forense.correlacao_rgb.rb, l: 'Correlação R-B', threshold: 0.98, rule: 'acima', desc: 'Canais redundantes se acima de 0.98' },
+                { v: forense.correlacao_rgb.gb, l: 'Correlação G-B', threshold: 0.98, rule: 'acima', desc: 'Canais redundantes se acima de 0.98' },
+                { v: forense.gradiente_media, l: 'Gradiente Média', threshold: 5, rule: 'abaixo', desc: 'Suavização artificial anormal se menor que 5.0' },
+                { v: forense.gradiente_desvio, l: 'Gradiente Desvio', threshold: 8, rule: 'abaixo', desc: 'Texturas muito idênticas se menor que 8.0' },
+                { v: forense.ela_media, l: 'Média ELA %', threshold: 15, rule: 'abaixo', desc: 'Compressão muito uniforme se menor que 15.0' }
+            ];
+
+            for (var mt = 0; mt < metricasDicionario.length; mt++) {
+                var itemMt = metricasDicionario[mt];
+                var anomalo = false;
+                
+                if (itemMt.rule === 'abaixo') {
+                    if (itemMt.v < itemMt.threshold) anomalo = true;
+                } else if (itemMt.rule === 'acima') {
+                    if (itemMt.v > itemMt.threshold) anomalo = true;
+                }
+                
+                var classeCard = anomalo ? 'metrica-card metrica-anomala' : 'metrica-card';
+                var corNum = anomalo ? 'var(--cor-perigo)' : 'var(--texto-principal)';
+                
+                htmlMetricas += '<div class="' + classeCard + '" title="' + escapeHtml(itemMt.desc) + '">';
+                htmlMetricas += '  <div class="metrica-valor" style="color: ' + corNum + '">' + itemMt.v + '</div>';
+                htmlMetricas += '  <div class="metrica-label">' + escapeHtml(itemMt.l) + '</div>';
+                htmlMetricas += '</div>';
+            }
+            metricasGrid.innerHTML = htmlMetricas;
+
+            // 5. POPULAR SEÇÃO 2: ANÁLISE COMPLETA - EXPLICAÇÕES E CONCLUSÕES
+            var interp = forense.interpretacao;
+            var classeResumo = 'resumo-baixo';
+            var iconResumo = '🛡️';
+            
+            if (interp.contagem.alta >= 3) {
+                classeResumo = 'resumo-alto';
+                iconResumo = '🚨';
+            } else if (interp.contagem.alta >= 1 || interp.contagem.media >= 2) {
+                classeResumo = 'resumo-medio';
+                iconResumo = '⚠️';
+            }
+
+            var divResumo = document.getElementById('interpretacaoResumo');
+            divResumo.className = 'interpretacao-resumo-caixa ' + classeResumo;
+            divResumo.innerHTML = '<span>' + iconResumo + '</span> <span>' + escapeHtml(interp.resumo) + '</span>';
+
+            var divConclusoes = document.getElementById('conclusoesLista');
+            var htmlConclusoes = '';
+            for (var c = 0; c < interp.conclusoes.length; c++) {
+                var conc = interp.conclusoes[c];
+                htmlConclusoes += '<div class="conclusao-card">';
+                htmlConclusoes += '  <div class="conclusao-topo">';
+                htmlConclusoes += '    <span class="conclusao-area">' + escapeHtml(conc.area) + '</span>';
+                htmlConclusoes += '    <span class="conclusao-severidade sev-' + conc.severidade + '">' + conc.severidade + '</span>';
+                htmlConclusoes += '  </div>';
+                htmlConclusoes += '  <div class="conclusao-indicador">' + escapeHtml(conc.indicador) + '</div>';
+                htmlConclusoes += '  <div class="conclusao-interpretacao">' + escapeHtml(conc.interpretacao) + '</div>';
+                htmlConclusoes += '  <div class="conclusao-valor">Extração física: ' + conc.valor + '</div>';
+                htmlConclusoes += '</div>';
+            }
+            divConclusoes.innerHTML = htmlConclusoes;
+
+            // Exibir container geral de resultados
+            resultadoGeral.style.display = 'block';
+            resultadoGeral.scrollIntoView({ behavior: 'smooth' });
+        })
+        .catch(function(err) {
+            esconderCarregando();
+            console.error(err);
+            mostrarErro('Erro ao processar e analisar a imagem de forma unificada. Verifique o console ou tente novamente.');
+        });
+});
+</script>
+</body>
+</html>

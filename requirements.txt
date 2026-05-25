@@ -1,0 +1,16 @@
+Flask
+pyexiftool
+numpy
+requests
+Pillow
+opencv-python
+python-dotenv
+certifi
+torch
+torchvision
+scikit-learn
+pandas
+joblib
+tqdm
+reportlab
+openpyxl
