@@ -1642,6 +1642,7 @@ body {
                 <span></span>
             </div>
             <div class="menu-dropdown" id="menuDropdown">
+                <div class="menu-item" id="menuApresentacao">✨ Apresentação</div>
                 <div class="menu-item" id="menuReview">💬 Deixar review</div>
                 <div class="menu-item" id="menuVerReviews">👁️ Ver reviews</div>
                 <div class="menu-item" id="menuSobre">📖 Manual Sobre</div>
@@ -1943,6 +1944,10 @@ document.getElementById('menuReview').addEventListener('click', function() {
     fetch('/formulario')
         .then(function(r) { return r.json(); })
         .then(function(d) { window.open(d.link, '_blank'); });
+});
+
+document.getElementById('menuApresentacao').addEventListener('click', function() {
+    window.open('/assets/apresentacao.html', '_blank');
 });
 
 document.getElementById('menuSobre').addEventListener('click', function() {
