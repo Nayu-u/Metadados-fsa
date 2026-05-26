@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Apresentação: Desvendando Fakes com o Kingambit 🕵️‍♂️✨</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+    --fundo-profundo: #030307;
+    --fundo-card: #090911;
+    --borda-suave: #16162a;
+    --borda-foco: #2d2d54;
+    --dourado-marca: #d4a520;
+    --dourado-claro: #f1c40f;
+    --vermelho-marca: #c41a35;
+    --texto-principal: #e2e2e9;
+    --texto-mutado: #8888a2;
+    --cor-sucesso: #10b981;
+    --cor-alerta: #f59e0b;
+    --cor-perigo: #ef4444;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Outfit', sans-serif;
+    background-color: var(--fundo-profundo);
+    color: var(--texto-principal);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* Background Wave animado */
+.fundo-cinematico {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #000000;
+    z-index: -1;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.onda-wave {
+    position: absolute;
+    top: 0;
+    left: -4vw;
+    width: 108vw;
+    height: 200vh;
+    background: linear-gradient(
+        170deg,
+        #000000 0%,
+        #000000 10%,
+        #240409 15%,
+        #4A0E17 20%,
+        #4A0E17 35%,
+        #240409 40%,
+        #000000 45%,
+        #000000 60%,
+        #240409 65%,
+        #4A0E17 70%,
+        #4A0E17 85%,
+        #240409 90%,
+        #000000 95%,
+        #000000 100%
+    );
+    animation: subirOnda 24s linear infinite;
+}
+
+@keyframes subirOnda {
+    0% { transform: translate3d(0, 0, 0); }
+    50% { transform: translate3d(-3vw, -50vh, 0); }
+    100% { transform: translate3d(0, -100vh, 0); }
+}
+
+header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 40px;
+    border-bottom: 1px solid var(--borda-suave);
+    background-color: rgba(3, 3, 7, 0.85);
+    backdrop-filter: blur(12px);
+    z-index: 10;
+    transition: all 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
+    height: 72px;
+}
+
+header.escondido {
+    height: 0;
+    padding: 0;
+    opacity: 0;
+    overflow: hidden;
+    border-bottom: 0 solid transparent;
+    pointer-events: none;
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.logo-img {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    object-fit: cover;
+    border: 1px solid var(--borda-suave);
+}
+
+.logo-texto {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--dourado-marca);
+    background: linear-gradient(135deg, var(--dourado-claro), var(--dourado-marca));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.contador-slides {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--texto-mutado);
+    background-color: var(--fundo-card);
+    padding: 6px 16px;
+    border-radius: 20px;
+    border: 1px solid var(--borda-suave);
+}
+
+/* Container do Slide-Deck */
+.slide-deck {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.5s ease;
+}
+
+.slide {
+    position: absolute;
+    width: calc(100% - 80px);
+    max-width: 900px;
+    max-height: calc(100% - 40px);
+    overflow-y: auto;
+    background-color: rgba(9, 9, 17, 0.85);
+    border: 1px solid var(--borda-suave);
+    border-radius: 24px;
+    padding: 48px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.7);
+    backdrop-filter: blur(20px);
+    opacity: 0;
+    pointer-events: none;
+    visibility: hidden;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%) scale(0.95);
+    transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), 
+                opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+                visibility 0.6s;
+}
+
+.slide.ativo {
+    opacity: 1;
+    pointer-events: auto;
+    visibility: visible;
+    transform: translate(-50%, -50%) scale(1);
+    z-index: 2;
+}
+
+.slide.pra-esquerda {
+    opacity: 0;
+    pointer-events: none;
+    visibility: hidden;
+    transform: translate(calc(-50% - 150px), -50%) scale(0.95);
+    z-index: 1;
+}
+
+.slide.pra-direita {
+    opacity: 0;
+    pointer-events: none;
+    visibility: hidden;
+    transform: translate(calc(-50% + 150px), -50%) scale(0.95);
+    z-index: 1;
+}
+
+/* Layout dos slides - 100% Centralizado */
+.slide-conteudo-centralizado {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 20px;
+}
+
+.slide-tag {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    color: #000;
+    background: linear-gradient(135deg, var(--dourado-claro), var(--dourado-marca));
+    padding: 5px 14px;
+    border-radius: 6px;
+    text-transform: uppercase;
+    display: inline-block;
+    margin-bottom: 8px;
+}
+
+.slide-titulo {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 36px;
+    font-weight: 700;
+    color: var(--dourado-claro);
+    line-height: 1.25;
+}
+
+.slide-descricao {
+    font-size: 16px;
+    color: var(--texto-principal);
+    line-height: 1.6;
+    max-width: 750px;
+    margin-bottom: 8px;
+}
+
+.slide-descricao strong {
+    color: var(--dourado-claro);
+}
+
+/* Emojis gigantes com animação */
+.emoji-gigante {
+    font-size: 80px;
+    margin: 12px 0;
+    filter: drop-shadow(0 0 20px rgba(212, 165, 32, 0.25));
+    animation: flutuar 3s ease-in-out infinite;
+}
+
+@keyframes flutuar {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-12px); }
+}
+
+/* Elementos visuais interativos */
+.cards-centralizados-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    width: 100%;
+    margin-top: 16px;
+}
+
+@media (max-width: 768px) {
+    .cards-centralizados-grid {
+        grid-template-columns: 1fr;
+    }
+    .slide {
+        padding: 32px 24px;
+        width: calc(100% - 32px);
+        max-height: calc(100% - 20px);
+    }
+    .slide-titulo {
+        font-size: 26px;
+    }
+    .slide-descricao {
+        font-size: 14px;
+    }
+}
+
+.passo-card {
+    background-color: var(--fundo-profundo);
+    border: 1px solid var(--borda-suave);
+    border-radius: 16px;
+    padding: 20px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    transition: all 0.3s;
+}
+
+.passo-card:hover {
+    border-color: var(--borda-foco);
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+}
+
+.passo-num {
+    background: linear-gradient(135deg, var(--vermelho-marca), #e74c3c);
+    color: #fff;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    box-shadow: 0 4px 10px rgba(196, 26, 53, 0.3);
+}
+
+.passo-card h4 {
+    font-size: 15px;
+    color: var(--dourado-claro);
+    font-weight: 700;
+}
+
+.passo-card p {
+    font-size: 12.5px;
+    color: var(--texto-mutado);
+    line-height: 1.4;
+}
+
+/* Grid para Juízes e Lupas Mágicas */
+.grid-duas-colunas {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    width: 100%;
+    margin-top: 16px;
+}
+
+@media (max-width: 768px) {
+    .grid-duas-colunas {
+        grid-template-columns: 1fr;
+    }
+}
+
+.item-painel-premium {
+    background-color: var(--fundo-profundo);
+    border: 1px solid var(--borda-suave);
+    border-radius: 16px;
+    padding: 20px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.item-painel-premium:hover {
+    border-color: var(--borda-foco);
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+}
+
+.item-painel-emoji {
+    font-size: 36px;
+    flex-shrink: 0;
+}
+
+.item-painel-info {
+    text-align: center;
+}
+
+.item-painel-info h4 {
+    font-size: 15px;
+    color: var(--dourado-claro);
+    font-weight: 700;
+    margin-bottom: 6px;
+}
+
+.item-painel-info p {
+    font-size: 12.5px;
+    color: var(--texto-mutado);
+    line-height: 1.45;
+}
+
+/* Rodapé com Navegação */
+footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 24px 40px;
+    border-top: 1px solid var(--borda-suave);
+    background-color: rgba(3, 3, 7, 0.95);
+    z-index: 10;
+}
+
+.barra-progresso-container {
+    flex: 1;
+    height: 4px;
+    background-color: var(--borda-suave);
+    margin: 0 40px;
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.barra-progresso {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--vermelho-marca), var(--dourado-marca));
+    transition: width 0.3s ease;
+}
+
+.btn-navegacao {
+    padding: 12px 28px;
+    border: 1px solid var(--borda-suave);
+    background-color: var(--fundo-card);
+    color: var(--texto-principal);
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-navegacao:hover:not(:disabled) {
+    border-color: var(--borda-foco);
+    background-color: var(--borda-suave);
+    color: #fff;
+    transform: translateY(-1px);
+}
+
+.btn-navegacao:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.btn-concluir {
+    background: linear-gradient(135deg, var(--dourado-marca), var(--dourado-claro));
+    color: #000;
+    border: none;
+    box-shadow: 0 4px 15px rgba(212, 165, 32, 0.2);
+}
+
+.btn-concluir:hover {
+    background: linear-gradient(135deg, var(--dourado-claro), #fff) !important;
+    color: #000 !important;
+    box-shadow: 0 6px 20px rgba(212, 165, 32, 0.4);
+}
+</style>
+</head>
+<body>
+
+<div class="fundo-cinematico">
+    <div class="onda-wave"></div>
+</div>
+
+<header id="header">
+    <div class="logo-container">
+        <!-- Relative and absolute paths fallback to work everywhere -->
+        <img id="logoImg" src="/assets/kingambit.png" onerror="this.onerror=null; this.src='kingambit.png';" alt="Kingambit" class="logo-img">
+        <span class="logo-texto">Kingambit</span>
+    </div>
+    <div class="contador-slides" id="contadorSlides">Slide 1 de 8</div>
+</header>
+
+<div class="slide-deck">
+    
+    <!-- SLIDE 1: CAPA -->
+    <div class="slide ativo">
+        <div class="slide-conteudo-centralizado">
+            <h1 class="slide-titulo">Desvendando Fakes com Inteligência Artificial!</h1>
+            <p class="slide-descricao">Bem-vindo ao <strong>Kingambit</strong>. Uma ferramenta poderosa e amigável para descobrir se uma foto é real ou se foi gerada por um computador de IA!</p>
+            <div class="emoji-gigante">🕵️‍♂️✨</div>
+            <p style="color: var(--texto-mutado); font-size: 13.5px; margin-top: 12px; line-height: 1.5;">Pressione as setas do teclado ( ⬅️ / ➡️ ) ou clique nos botões de navegação abaixo.</p>
+        </div>
+    </div>
+
+    <!-- SLIDE 2: O PROBLEMA -->
+    <div class="slide">
+        <div class="slide-conteudo-centralizado">
+            <span class="slide-tag" style="background: var(--vermelho-marca); color: #fff;">O Desafio</span>
+            <h2 class="slide-titulo">Qual é o problema das imagens de IA?</h2>
+            <p class="slide-descricao">Hoje em dia, qualquer pessoa pode criar uma imagem super realista em segundos usando Inteligência Artificial (como <strong>Midjourney</strong> ou <strong>Stable Diffusion</strong>).</p>
+            <p class="slide-descricao">Isso é incrível para a arte, mas pode ser muito perigoso quando usado para espalhar <strong>notícias falsas (Fake News)</strong> ou enganar as pessoas na internet.</p>
+            <p class="slide-descricao">A missão do <strong>Kingambit</strong> é dar a você as mesmas armas que os peritos forenses usam para provar o que é real!</p>
+            <div class="emoji-gigante">🤖📸</div>
+        </div>
+    </div>
+
+    <!-- SLIDE 3: O FLUXO DE USO -->
+    <div class="slide">
+        <div class="slide-conteudo-centralizado">
+            <span class="slide-tag">Passo a Passo</span>
+            <h2 class="slide-titulo">Como usar a ferramenta?</h2>
+            <p class="slide-descricao">Investigar com o Kingambit é extremamente fácil. São apenas <strong>3 passos rápidos</strong>:</p>
+            
+            <div class="cards-centralizados-grid">
+                <div class="passo-card">
+                    <div class="passo-num">1</div>
+                    <h4>Escolha a Foto</h4>
+                    <p>Arraste uma foto suspeita para a área pontilhada na tela inicial ou procure no seu dispositivo.</p>
+                </div>
+                <div class="passo-card">
+                    <div class="passo-num">2</div>
+                    <h4>Inicie a Análise</h4>
+                    <p>Clique no botão vermelho para ativar o nosso laboratório forense local e offline.</p>
+                </div>
+                <div class="passo-card">
+                    <div class="passo-num">3</div>
+                    <h4>Veja as Pistas</h4>
+                    <p>O sistema processa a física em segundos e te dá um parecer com um score de 0% a 100% de IA.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 4: OS JUÍZES -->
+    <div class="slide">
+        <div class="slide-conteudo-centralizado">
+            <span class="slide-tag">O Tribunal</span>
+            <h2 class="slide-titulo">O Júri de IAs: Quem decide?</h2>
+            <p class="slide-descricao">Para evitar erros, o Kingambit simula um comitê com <strong>4 modelos neurais especializados</strong> que votam para chegar ao veredito:</p>
+            
+            <div class="grid-duas-colunas">
+                <div class="item-painel-premium" style="border-color: var(--dourado-marca);">
+                    <span class="item-painel-emoji">👑</span>
+                    <div class="item-painel-info">
+                        <h4>IA Principal (O Juiz Chefe)</h4>
+                        <p>O modelo mais treinado do sistema. Por ser extremamente preciso em todas as categorias, o seu voto tem peso de decisão 6x.</p>
+                    </div>
+                </div>
+                <div class="item-painel-premium">
+                    <span class="item-painel-emoji">🕵️</span>
+                    <div class="item-painel-info">
+                        <h4>IA Geral (Perito de Texturas)</h4>
+                        <p>Focado em identificar inconsistências microscópicas, texturas e padrões de compressão de geradores genéricos.</p>
+                    </div>
+                </div>
+                <div class="item-painel-premium">
+                    <span class="item-painel-emoji">🌲</span>
+                    <div class="item-painel-info">
+                        <h4>IA Multicategoria (Cenários)</h4>
+                        <p>Analisa a física e a iluminação em objetos, vegetação, construções e cenários de plano de fundo.</p>
+                    </div>
+                </div>
+                <div class="item-painel-premium">
+                    <span class="item-painel-emoji">👤</span>
+                    <div class="item-painel-info">
+                        <h4>IA Face Detection (Retratos)</h4>
+                        <p>Altamente calibrado para flagrar deepfakes, rostos clonados e retratos de pessoas gerados artificialmente.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 5: LUPAS MÁGICAS (PARTE 1) -->
+    <div class="slide">
+        <div class="slide-conteudo-centralizado">
+            <span class="slide-tag">Filtros Físicos</span>
+            <h2 class="slide-titulo">Lupas Mágicas: Revelando o Invisível</h2>
+            <p class="slide-descricao">As IAs podem enganar a nossa visão, por isso o Kingambit extrai <strong>assinaturas físicas e ópticas</strong> direto dos pixels da imagem:</p>
+            
+            <div class="grid-duas-colunas">
+                <div class="item-painel-premium">
+                    <span class="item-painel-emoji">🔍</span>
+                    <div class="item-painel-info">
+                        <h4>ELA (Erro de Compressão)</h4>
+                        <p>Se alguém usou Photoshop ou colou um pedaço na foto, as taxas de compressão ficam desalinhadas. No mapa ELA, a montagem brilha de forma anormal!</p>
+                    </div>
+                </div>
+                <div class="item-painel-premium">
+                    <span class="item-painel-emoji">🌊</span>
+                    <div class="item-painel-info">
+                        <h4>Ruído SRM (DNA do Sensor)</h4>
+                        <p>Toda lente real deixa um padrão microscópico de ruído na foto. A IA gera imagens lisas e homogêneas demais. A falta desse ruído contínuo denuncia a máquina.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 6: LUPAS MÁGICAS (PARTE 2) -->
+    <div class="slide">
+        <div class="slide-conteudo-centralizado">
+            <span class="slide-tag">Análise Avançada</span>
+            <h2 class="slide-titulo">A Física por Trás do Computador</h2>
+            <p class="slide-descricao">Veja como o sistema usa as leis ópticas e matemáticas para encontrar pistas secretas:</p>
+            
+            <div class="grid-duas-colunas">
+                <div class="item-painel-premium">
+                    <span class="item-painel-emoji">⚡</span>
+                    <div class="item-painel-info">
+                        <h4>FFT de Fourier (O Grid da IA)</h4>
+                        <p>A IA pinta em grades matemáticas repetitivas. A transformada FFT converte a imagem em frequências, expondo esse padrão oculto como pontos geométricos ou estrelas simétricas perfeitas!</p>
+                    </div>
+                </div>
+                <div class="item-painel-premium">
+                    <span class="item-painel-emoji">🌈</span>
+                    <div class="item-painel-info">
+                        <h4>Aberração Cromática (A Lente Falha)</h4>
+                        <p>Lentes de vidro reais causam pequenas distorções de cor nas bordas de alto contraste. A IA cria bordas puras e virtuais. A ausência total de aberração é assinatura de IA!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 7: METADADOS -->
+    <div class="slide">
+        <div class="slide-conteudo-centralizado">
+            <span class="slide-tag">Cabeçalho Binário</span>
+            <h2 class="slide-titulo">Metadados EXIF: O "RG" da Foto</h2>
+            <p class="slide-descricao">Toda foto capturada por um sensor real carrega uma certidão de nascimento invisível anexada no arquivo:</p>
+            
+            <div class="grid-duas-colunas">
+                <div class="item-painel-premium">
+                    <span class="item-painel-emoji">📱</span>
+                    <div class="item-painel-info">
+                        <h4>Ficha Técnica Óptica</h4>
+                        <p>Registra a marca e o modelo da câmera/celular, velocidade do obturador, abertura da lente, ISO e até as coordenadas de GPS.</p>
+                    </div>
+                </div>
+                <div class="item-painel-premium">
+                    <span class="item-painel-emoji">🤖</span>
+                    <div class="item-painel-info">
+                        <h4>Assinatura de Softwares de IA</h4>
+                        <p>Muitas plataformas (como Adobe Firefly, Bing Creator ou ChatGPT) gravam metadados explícitos de conteúdo artificial. O ExifTool lê todos em milissegundos!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 8: LAUDO FINAL -->
+    <div class="slide">
+        <div class="slide-conteudo-centralizado">
+            <span class="slide-tag" style="background: var(--cor-sucesso); color: #000;">Veredito</span>
+            <h2 class="slide-titulo">Agora você é o Detetive Digital!</h2>
+            <p class="slide-descricao">Ao final, o Kingambit junta as provas e te dá um parecer visual com três níveis de risco:</p>
+            
+            <div class="cards-centralizados-grid" style="margin-top: 12px;">
+                <div class="passo-card" style="border-color: var(--cor-sucesso);">
+                    <div style="font-size: 28px;">🟢</div>
+                    <h4 style="color: var(--cor-sucesso)">Autenticidade</h4>
+                    <p>A foto exibe marcas físicas de luz, ruído contínuo e passou com segurança pelo júri neural.</p>
+                </div>
+                <div class="passo-card" style="border-color: var(--cor-alerta);">
+                    <div style="font-size: 28px;">🟡</div>
+                    <h4 style="color: var(--cor-alerta)">Dúvida Razoável</h4>
+                    <p>Sinais inconsistentes. Algumas pistas apontam real e outras fake. Exige auditoria detalhada.</p>
+                </div>
+                <div class="passo-card" style="border-color: var(--cor-perigo);">
+                    <div style="font-size: 28px;">🔴</div>
+                    <h4 style="color: var(--cor-perigo)">Forte Suspeita de IA</h4>
+                    <p>Múltiplas anomalias e certeza matemática de IA pelo nosso modelo principal.</p>
+                </div>
+            </div>
+            <p style="color: var(--dourado-claro); font-weight: 700; font-size: 15px; margin-top: 16px; max-width: 650px;">O conhecimento é a melhor ferramenta contra os fakes. Seja o guardião da verdade na internet! 🌐🛡️</p>
+        </div>
+    </div>
+
+</div>
+
+<footer>
+    <button class="btn-navegacao" id="btnAnterior" disabled>◀️ Anterior</button>
+    <div class="barra-progresso-container">
+        <div class="barra-progresso" id="barraProgresso"></div>
+    </div>
+    <button class="btn-navegacao" id="btnProximo">Próximo ▶️</button>
+</footer>
+
+<script>
+var slideAtual = 0;
+var slides = document.querySelectorAll('.slide');
+var totalSlides = slides.length;
+
+var header = document.getElementById('header');
+var btnAnterior = document.getElementById('btnAnterior');
+var btnProximo = document.getElementById('btnProximo');
+var contadorSlides = document.getElementById('contadorSlides');
+var barraProgresso = document.getElementById('barraProgresso');
+
+function atualizarNavegacao() {
+    // Aplicar as classes de transição suave em cada slide
+    for (var i = 0; i < totalSlides; i++) {
+        slides[i].classList.remove('ativo', 'pra-esquerda', 'pra-direita');
+        if (i === slideAtual) {
+            slides[i].classList.add('ativo');
+        } else if (i < slideAtual) {
+            slides[i].classList.add('pra-esquerda');
+        } else {
+            slides[i].classList.add('pra-direita');
+        }
+    }
+    
+    // Esconder o cabeçalho após o slide de introdução (Slide 0) para dar foco total ao tópico!
+    if (slideAtual > 0) {
+        header.classList.add('escondido');
+    } else {
+        header.classList.remove('escondido');
+    }
+    
+    // Contador de slides no topo
+    contadorSlides.textContent = 'Slide ' + (slideAtual + 1) + ' de ' + totalSlides;
+    
+    // Barra de progresso do rodapé
+    var pct = ((slideAtual) / (totalSlides - 1)) * 100;
+    barraProgresso.style.width = pct + '%';
+    
+    // Botões habilitados/desabilitados
+    btnAnterior.disabled = (slideAtual === 0);
+    
+    if (slideAtual === totalSlides - 1) {
+        btnProximo.textContent = '🔬 Abrir o Sistema';
+        btnProximo.classList.add('btn-concluir');
+    } else {
+        btnProximo.textContent = 'Próximo ▶️';
+        btnProximo.classList.remove('btn-concluir');
+    }
+}
+
+btnAnterior.addEventListener('click', function() {
+    if (slideAtual > 0) {
+        slideAtual--;
+        atualizarNavegacao();
+    }
+});
+
+btnProximo.addEventListener('click', function() {
+    if (slideAtual < totalSlides - 1) {
+        slideAtual++;
+        atualizarNavegacao();
+    } else {
+        // Redireciona para o painel principal do sistema
+        window.location.href = '/';
+    }
+});
+
+// Navegação usando as setas do teclado e barra de espaço
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'ArrowRight' || e.key === ' ') {
+        if (slideAtual < totalSlides - 1) {
+            slideAtual++;
+            atualizarNavegacao();
+        } else {
+            window.location.href = '/';
+        }
+    } else if (e.key === 'ArrowLeft') {
+        if (slideAtual > 0) {
+            slideAtual--;
+            atualizarNavegacao();
+        }
+    }
+});
+
+// Inicializar navegação
+atualizarNavegacao();
+</script>
+</body>
+</html>
