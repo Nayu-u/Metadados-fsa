@@ -1,7 +1,7 @@
 import sys
 import os
 
-print("--- DIAGNÓSTICO DO MODELO DE IA ---")
+print("--- DIAGNÓSTICO ---")
 print(f"Diretório atual: {os.getcwd()}")
 
 try:
@@ -38,7 +38,7 @@ try:
     print("\n4. Tentando carregar normalizadores e pesos neurais como feito no modelozudo...")
     import torch.nn as nn
     
-    # Class neural network definition from modelozudo
+
     class RedeClassificacao(nn.Module):
         def __init__(self, input_dim):
             super(RedeClassificacao, self).__init__()
@@ -63,7 +63,7 @@ try:
 
     print("Carregando modelo_1.pth...")
     model = RedeClassificacao(10)
-    # Map storage to CPU in case they don't have GPU
+
     state_dict = torch.load("modelo_1.pth", map_location=torch.device('cpu'), weights_only=True)
     model.load_state_dict(state_dict)
     model.eval()
