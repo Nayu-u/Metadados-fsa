@@ -29,24 +29,24 @@
 
 body {
     font-family: 'Outfit', sans-serif;
-    background-color: transparent; /* Permite que o fundo-cinematico apareça */
+    background-color: transparent; 
     color: var(--texto-principal);
     min-height: 100vh;
     overflow-x: hidden;
 }
 
-/* Fundo Cinemático de Gradiente Fluido (Não para de se mexer e é ultra-suave) */
+
 .fundo-cinematico {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: #000000; /* Base preta sólida do fundo */
+    background-color: #000000; 
     z-index: -1;
     overflow: hidden;
     pointer-events: none;
-    transform: translate3d(0, 0, 0); /* Força aceleração de hardware 3D */
+    transform: translate3d(0, 0, 0); 
 }
 
 .onda-wave {
@@ -83,7 +83,7 @@ body {
         transform: translate3d(0, 0, 0);
     }
     50% {
-        transform: translate3d(-3vw, -50vh, 0); /* Balanço lateral suave */
+        transform: translate3d(-3vw, -50vh, 0); 
     }
     100% {
         transform: translate3d(0, -100vh, 0);
@@ -91,7 +91,7 @@ body {
 }
 
 
-/* Scrollbar estilizada */
+
 ::-webkit-scrollbar {
     width: 8px;
     height: 8px;
@@ -236,7 +236,7 @@ body {
     padding: 40px 24px 80px;
 }
 
-/* Área de Upload Premium */
+
 .upload-area {
     border: 2px dashed var(--dourado-marca);
     border-radius: 16px;
@@ -323,7 +323,7 @@ body {
     display: none;
 }
 
-/* Botão Único Centralizado e Imponente */
+
 .botoes-container {
     display: flex;
     justify-content: center;
@@ -379,7 +379,7 @@ body {
     border: 1px solid var(--borda-foco);
 }
 
-/* Loader Premium */
+
 .carregando {
     display: none;
     text-align: center;
@@ -446,7 +446,7 @@ body {
     margin-top: 6px;
 }
 
-/* Erros */
+
 .erro-msg {
     background-color: rgba(239, 68, 68, 0.08);
     border: 1px solid var(--cor-perigo);
@@ -466,7 +466,7 @@ body {
     animation: surgindo 0.3s ease-out;
 }
 
-/* Cards Premium Gerais */
+
 .card-premium {
     background-color: var(--fundo-card);
     border: 1px solid var(--borda-suave);
@@ -491,7 +491,7 @@ body {
     font-size: 22px;
 }
 
-/* SEÇÃO 1: METADADOS (TOPO) - ABAS PREMIUM */
+
 .abas-metadados {
     display: flex;
     gap: 8px;
@@ -536,7 +536,7 @@ body {
     animation: surgindo 0.35s ease-out;
 }
 
-/* Tabelas e cards internos */
+
 .meta-tabela {
     width: 100%;
     border-collapse: collapse;
@@ -618,7 +618,7 @@ body {
     border: 1px solid var(--borda-suave);
 }
 
-/* SEÇÃO 2: ANÁLISE COMPLETA - BANCADA DE IAS */
+
 .bancada-ias-container {
     display: grid;
     grid-template-columns: 200px 1fr;
@@ -734,7 +734,7 @@ body {
     text-transform: uppercase;
 }
 
-/* Layout da Bancada em Duas Linhas */
+
 .jurados-layout {
     display: flex;
     flex-direction: column;
@@ -828,7 +828,7 @@ body {
     letter-spacing: 0.5px;
 }
 
-/* Jurados Auxiliares - 3 Colunas */
+
 .jurados-auxiliares-grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -889,7 +889,7 @@ body {
     opacity: 0.4;
 }
 
-/* Tooltips explicativas premium */
+
 .ajuda-icone {
     display: inline-flex;
     align-items: center;
@@ -963,7 +963,7 @@ body {
     transform: translateY(0);
 }
 
-/* SEÇÃO 2: ANÁLISE COMPLETA - MAPAS FORENSES FÍSICOS */
+
 .mapas-forenses-grid {
     display: grid;
     grid-template-columns: repeat(6, 1fr);
@@ -1050,7 +1050,7 @@ body {
     line-height: 1.4;
 }
 
-/* SEÇÃO 2: ANÁLISE COMPLETA - MÉTRICAS FORENSES FÍSICAS */
+
 .metricas-forenses-grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -1099,7 +1099,7 @@ body {
     letter-spacing: 0.5px;
 }
 
-/* EXPLICAÇÃO CONCLUSIVA E CAIXA DE AVISOS */
+
 .interpretacao-caixa-premium {
     margin-top: 32px;
 }
@@ -1220,7 +1220,7 @@ body {
     align-self: flex-start;
 }
 
-/* Modais de Reviews */
+
 .modal-fundo {
     display: none;
     position: fixed;
@@ -1301,7 +1301,7 @@ body {
     color: var(--texto-mutado);
 }
 
-/* --- PREMIUM REVIEWS STYLING --- */
+
 .modal-conteudo-reviews {
     max-width: 850px !important;
 }
@@ -1551,7 +1551,7 @@ body {
     font-size: 14px;
 }
 
-/* Modal de Visualização Ampliada da Imagem */
+
 .modal-visualizador {
     display: none;
     position: fixed;
@@ -1682,10 +1682,10 @@ body {
         <div class="carregando-subtexto">Isso pode levar de 5 a 15 segundos dependendo do tamanho da imagem.</div>
     </div>
 
-    <!-- PAINEL DE RESULTADOS UNIFICADO -->
+    
     <div class="resultado-geral" id="resultadoGeral" style="display: none;">
         
-        <!-- SEÇÃO 1: METADADOS (TOPO) -->
+        
         <div class="card-premium" id="cardMetadados">
             <h2 class="titulo-secao">
                 <span class="icon">📁</span> Metadados do Arquivo (ExifTool)
@@ -1706,11 +1706,11 @@ body {
             </div>
         </div>
 
-        <!-- SEÇÃO 2: ANÁLISE COMPLETA (ABAIXO) -->
+        
         <div class="card-premium" id="cardAnaliseCompleta">
             <h2 class="titulo-secao"><span class="icon">🔬</span> Análise Forense Completa</h2>
             
-            <!-- PRIMEIRO ITEM: VEREDITO DA BANCADA DE IAS -->
+            
             <div class="bancada-ias-container">
                 <div class="bancada-gauge-box">
                     <div class="gauge-wrapper">
@@ -1735,16 +1735,16 @@ body {
                         </div>
                     </h3>
                     <div class="jurados-layout">
-                        <!-- Primeira Linha: Modelo Principal -->
+                        
                         <div id="juradoPrincipalContainer"></div>
                         
-                        <!-- Segunda Linha: Três Modelos Auxiliares -->
+                        
                         <div class="jurados-auxiliares-grid" id="juradosAuxiliaresGrid"></div>
                     </div>
                 </div>
             </div>
             
-            <!-- SEGUNDO ITEM: MAPAS FORENSES FÍSICOS -->
+            
             <h3 class="bancada-subtitulo" style="margin-top: 36px; border-bottom: 1px solid var(--borda-suave); padding-bottom: 8px;">
                 <span class="icon">🖼️</span> Mapas de Sinais & Filtros Físicos
                 <div class="tooltip-container">
@@ -1800,7 +1800,7 @@ body {
                 </div>
             </div>
             
-            <!-- TERCEIRO ITEM: ESTATÍSTICAS NUMÉRICAS -->
+            
             <h3 class="bancada-subtitulo" style="margin-top: 36px; border-bottom: 1px solid var(--borda-suave); padding-bottom: 8px;">
                 <span class="icon">📊</span> Métricas de Extração de Ruído & Gradientes
                 <div class="tooltip-container">
@@ -1809,10 +1809,10 @@ body {
                 </div>
             </h3>
             <div class="metricas-forenses-grid" id="metricasForensesGrid">
-                <!-- Cards de métricas carregados dinamicamente -->
+                
             </div>
 
-            <!-- QUARTO ITEM: INTERPRETAÇÃO CONCLUSIVA -->
+            
             <h3 class="bancada-subtitulo" style="margin-top: 36px; border-bottom: 1px solid var(--borda-suave); padding-bottom: 8px;">
                 <span class="icon">🧠</span> Parecer Técnico Conclusivo
                 <div class="tooltip-container">
@@ -1828,7 +1828,7 @@ body {
     </div>
 </div>
 
-<!-- Modal de Reviews -->
+
 <div class="modal-fundo" id="modalReviews">
     <div class="modal-conteudo modal-conteudo-reviews">
         <div class="modal-topo">
@@ -1840,7 +1840,7 @@ body {
     </div>
 </div>
 
-<!-- Modal de Visualização Ampliada da Imagem -->
+
 <div class="modal-visualizador" id="modalVisualizador" onclick="fecharAmpliador()">
     <span class="modal-visualizador-fechar">&#10005;</span>
     <img class="modal-visualizador-img" id="imagemAmpliada">
@@ -1930,7 +1930,7 @@ function trocarAbaMetadados(indice) {
     paineis[indice].classList.add('ativa');
 }
 
-// Menu Hamburguer
+
 menuHamburguer.addEventListener('click', function(e) {
     e.stopPropagation();
     menuDropdown.classList.toggle('ativo');
@@ -1996,13 +1996,13 @@ function renderizarReviews(dados, colunas) {
         return;
     }
 
-    // Identificar colunas especiais de forma resiliente e flexivel
+
     var colNome = colunas.find(function(c) { return c.toLowerCase().indexOf('nome') !== -1; }) || colunas[1] || '';
     var colData = colunas.find(function(c) { return c.toLowerCase().indexOf('carimbo') !== -1 || c.toLowerCase().indexOf('data') !== -1 || c.toLowerCase().indexOf('hora') !== -1; }) || colunas[0] || '';
     var colInternet = colunas.find(function(c) { return c.toLowerCase().indexOf('conectado') !== -1 || c.toLowerCase().indexOf('internet') !== -1; }) || '';
     var colFamiliaridade = colunas.find(function(c) { return c.toLowerCase().indexOf('familiaridade') !== -1; }) || '';
 
-    // Filtrar colunas das 8 fotos/amostras
+
     var colClassificacoes = colunas.filter(function(c) {
         var cl = c.toLowerCase();
         return (cl.indexOf('classifica') !== -1 || cl.indexOf('origem') !== -1) && cl.indexOf('método') === -1 && cl.indexOf('metodo') === -1;
@@ -2018,7 +2018,7 @@ function renderizarReviews(dados, colunas) {
         return nomeA.localeCompare(nomeB);
     });
 
-    // Encurtadores inteligentes para polimento e elegância visual
+
     function encurtarFamiliaridade(fam) {
         if (!fam) return 'Média';
         var f = fam.toString();
@@ -2089,7 +2089,7 @@ function renderizarReviews(dados, colunas) {
 
         html += '<div class="review-card" onclick="toggleReview(' + i + ', event)">';
         
-        // Header (Cabeçalho do Perito)
+
         html += '  <div class="review-header">';
         html += '    <div class="review-header-left">';
         html += '      <span class="review-icon">🕵️‍♂️</span>';
@@ -2104,7 +2104,7 @@ function renderizarReviews(dados, colunas) {
         html += '    </div>';
         html += '  </div>';
 
-        // Detalhes Expandidos (O Laudo Pericial)
+
         html += '  <div class="review-detalhes" id="review-' + i + '" onclick="event.stopPropagation()">';
         
         html += '    <div class="laudo-banner">';
@@ -2123,7 +2123,7 @@ function renderizarReviews(dados, colunas) {
         html += '      <div style="margin-left: auto;"><strong>Internet:</strong> ' + escapeHtml(internet.toString()) + '</div>';
         html += '    </div>';
 
-        // Grid das 8 Fotos / Amostras
+
         html += '    <div class="amostras-grid">';
         for (var j = 0; j < 8; j++) {
             var colClass = colClassificacoes[j];
@@ -2172,7 +2172,7 @@ document.getElementById('buscaReviews').addEventListener('input', function() {
     }
 });
 
-// Ampliador de Imagens Forenses
+
 function ampliarImagem(container) {
     var img = container.querySelector('img');
     var modal = document.getElementById('modalVisualizador');
@@ -2185,20 +2185,20 @@ function fecharAmpliador() {
     document.getElementById('modalVisualizador').classList.remove('ativo');
 }
 
-// ATUALIZAÇÃO DO GAUGE CIRCULAR
+
 function atualizarGauge(score) {
     var progresso = document.getElementById('gaugeProgresso');
     var txtScore = document.getElementById('gaugeScore');
     var statusBadge = document.getElementById('bancadaStatusBadge');
     
-    // Perimetro do circulo com r=45 é 2 * PI * 45 ≈ 283
+
     var perimetro = 283;
     var offset = perimetro - (score / 100) * perimetro;
     
     progresso.style.strokeDashoffset = offset;
     txtScore.textContent = score + '%';
     
-    // Determina cores e badges com base no veredito
+
     progresso.style.stroke = 'var(--cor-sucesso)';
     statusBadge.className = 'bancada-status-badge status-baixo';
     statusBadge.textContent = 'Autenticidade Confirmada';
@@ -2214,7 +2214,7 @@ function atualizarGauge(score) {
     }
 }
 
-// CHAMADA AJAX PARA ANÁLISE COMPLETA UNIFICADA
+
 btnAnalisar.addEventListener('click', function() {
     if (!arquivoAtual) return;
     esconderErro();
@@ -2230,10 +2230,10 @@ btnAnalisar.addEventListener('click', function() {
             esconderCarregando();
             if (d.erro) { mostrarErro(d.erro); return; }
 
-            // 1. POPULAR SEÇÃO 1: METADADOS (com abas de ordem estrita)
+
             var cat = d.categorias;
             
-            // Aba 1: Destaques de IA / Suspeitas
+
             var painelIa = document.getElementById('abaPainelIa');
             var htmlIa = '';
             if (cat.indicios_ia && cat.indicios_ia.length > 0) {
@@ -2254,7 +2254,7 @@ btnAnalisar.addEventListener('click', function() {
             }
             painelIa.innerHTML = htmlIa;
 
-            // Aba 2: Câmera & Equipamento
+
             var painelCamera = document.getElementById('abaPainelCamera');
             var htmlCamera = '';
             if (cat.camera && Object.keys(cat.camera).length > 0) {
@@ -2264,21 +2264,21 @@ btnAnalisar.addEventListener('click', function() {
             }
             painelCamera.innerHTML = htmlCamera;
 
-            // Aba 3: Outros & Completo
+
             var painelOutros = document.getElementById('abaPainelOutros');
             painelOutros.innerHTML = criarTabela(d.exif);
 
-            // Resetar aba metadados para a primeira ativa
+
             trocarAbaMetadados(0);
 
-            // 2. POPULAR SEÇÃO 2: ANÁLISE COMPLETA - BANCADA DE IAS (Modelo Principal + Modelos Auxiliares)
+
             var bancada = d.bancada;
             atualizarGauge(bancada.media_geral);
             
             var containerPrincipal = document.getElementById('juradoPrincipalContainer');
             var containerAuxiliares = document.getElementById('juradosAuxiliaresGrid');
             
-            // IA Principal (Modelo 2)
+
             var dadosPrincipal = bancada.modelos['modelo_2'];
             var htmlPrincipal = '';
             
@@ -2320,7 +2320,7 @@ btnAnalisar.addEventListener('click', function() {
             }
             containerPrincipal.innerHTML = htmlPrincipal;
             
-            // Modelos Complementares (Modelos 1, 3 e 4)
+
             var modelosAuxiliares = [
                 { id: 'modelo_1', padrao: 'IA Geral' },
                 { id: 'modelo_3', padrao: 'IA Multicategoria' },
@@ -2380,7 +2380,7 @@ btnAnalisar.addEventListener('click', function() {
             }
             containerAuxiliares.innerHTML = htmlAuxiliares;
 
-            // 3. POPULAR SEÇÃO 2: ANÁLISE COMPLETA - MAPAS FÍSICOS
+
             var urlOriginal = URL.createObjectURL(arquivoAtual);
             document.getElementById('mapaOriginal').src = urlOriginal;
             document.getElementById('mapaEla').src = 'data:image/png;base64,' + d.ela;
@@ -2388,7 +2388,7 @@ btnAnalisar.addEventListener('click', function() {
             document.getElementById('mapaGradiente').src = 'data:image/png;base64,' + d.forense.mapa_gradiente_b64;
             document.getElementById('mapaFft').src = 'data:image/png;base64,' + d.forense.fft_mapa_b64;
 
-            // 4. POPULAR SEÇÃO 2: ANÁLISE COMPLETA - MÉTRICAS FORENSES FÍSICAS
+
             var forense = d.forense;
             var metricasGrid = document.getElementById('metricasForensesGrid');
             var htmlMetricas = '';
@@ -2425,7 +2425,7 @@ btnAnalisar.addEventListener('click', function() {
             }
             metricasGrid.innerHTML = htmlMetricas;
 
-            // 5. POPULAR SEÇÃO 2: ANÁLISE COMPLETA - EXPLICAÇÕES E CONCLUSÕES
+
             var interp = forense.interpretacao;
             var classeResumo = 'resumo-baixo';
             var iconResumo = '🛡️';
@@ -2458,7 +2458,7 @@ btnAnalisar.addEventListener('click', function() {
             }
             divConclusoes.innerHTML = htmlConclusoes;
 
-            // Exibir container geral de resultados
+
             resultadoGeral.style.display = 'block';
             resultadoGeral.scrollIntoView({ behavior: 'smooth' });
         })
