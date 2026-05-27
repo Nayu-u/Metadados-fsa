@@ -413,7 +413,7 @@ def classificar_bancada(conteudo_bytes, features_forenses):
 
     pesos_modelos = {
         1: 1,
-        2: 6,  # IA Principal com peso 6
+        2: 6,
         3: 1,
         4: 1
     }
@@ -466,7 +466,7 @@ def classificar(conteudo_bytes, features_forenses):
     """
     res = classificar_modelo(conteudo_bytes, features_forenses, 1)
     if res is None:
-        # Se modelo_1 não existir, tenta carregar qualquer um ou retorna neutro
+
         return {"score": 0.0, "nivel": "Baixo", "probabilidade": 0.0}
     return res
 
@@ -492,7 +492,7 @@ if __name__ == "__main__":
             sys.exit(1)
         testar(sys.argv[2])
     elif comando == "treinar_todos":
-        for idx in [2, 3, 4]:  # Modelo 1 já aproveitamos o original
+        for idx in [2, 3, 4]:
             try:
                 treinar(idx)
             except Exception as exc:
