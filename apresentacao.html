@@ -37,7 +37,7 @@ body {
     overflow: hidden;
 }
 
-/* Background Wave animado */
+
 .fundo-cinematico {
     position: fixed;
     top: 0;
@@ -139,7 +139,7 @@ header.escondido {
     border: 1px solid var(--borda-suave);
 }
 
-/* Container do Slide-Deck */
+
 .slide-deck {
     flex: 1;
     display: flex;
@@ -198,7 +198,7 @@ header.escondido {
     z-index: 1;
 }
 
-/* Layout dos slides - 100% Centralizado */
+
 .slide-conteudo-centralizado {
     display: flex;
     flex-direction: column;
@@ -240,7 +240,7 @@ header.escondido {
     color: var(--dourado-claro);
 }
 
-/* Emojis gigantes com animação */
+
 .emoji-gigante {
     font-size: 80px;
     margin: 12px 0;
@@ -253,7 +253,7 @@ header.escondido {
     50% { transform: translateY(-12px); }
 }
 
-/* Elementos visuais interativos */
+
 .cards-centralizados-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -325,7 +325,7 @@ header.escondido {
     line-height: 1.4;
 }
 
-/* Grid para Juízes e Lupas Mágicas */
+
 .grid-duas-colunas {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -381,7 +381,7 @@ header.escondido {
     line-height: 1.45;
 }
 
-/* Rodapé com Navegação */
+
 footer {
     display: flex;
     align-items: center;
@@ -458,16 +458,16 @@ footer {
 
 <header id="header">
     <div class="logo-container">
-        <!-- Relative and absolute paths fallback to work everywhere -->
+        
         <img id="logoImg" src="/assets/kingambit.png" onerror="this.onerror=null; this.src='kingambit.png';" alt="Kingambit" class="logo-img">
         <span class="logo-texto">Kingambit</span>
     </div>
-    <div class="contador-slides" id="contadorSlides">Slide 1 de 8</div>
+    <div class="contador-slides" id="contadorSlides">Slide 1 de 9</div>
 </header>
 
 <div class="slide-deck">
     
-    <!-- SLIDE 1: CAPA -->
+    
     <div class="slide ativo">
         <div class="slide-conteudo-centralizado">
             <h1 class="slide-titulo">Desvendando Fakes com Inteligência Artificial!</h1>
@@ -477,7 +477,7 @@ footer {
         </div>
     </div>
 
-    <!-- SLIDE 2: O PROBLEMA -->
+    
     <div class="slide">
         <div class="slide-conteudo-centralizado">
             <span class="slide-tag" style="background: var(--vermelho-marca); color: #fff;">O Desafio</span>
@@ -489,7 +489,7 @@ footer {
         </div>
     </div>
 
-    <!-- SLIDE 3: O FLUXO DE USO -->
+    
     <div class="slide">
         <div class="slide-conteudo-centralizado">
             <span class="slide-tag">Passo a Passo</span>
@@ -516,7 +516,7 @@ footer {
         </div>
     </div>
 
-    <!-- SLIDE 4: OS JUÍZES -->
+    
     <div class="slide">
         <div class="slide-conteudo-centralizado">
             <span class="slide-tag">O Tribunal</span>
@@ -556,7 +556,7 @@ footer {
         </div>
     </div>
 
-    <!-- SLIDE 5: LUPAS MÁGICAS (PARTE 1) -->
+    
     <div class="slide">
         <div class="slide-conteudo-centralizado">
             <span class="slide-tag">Filtros Físicos</span>
@@ -582,7 +582,7 @@ footer {
         </div>
     </div>
 
-    <!-- SLIDE 6: LUPAS MÁGICAS (PARTE 2) -->
+    
     <div class="slide">
         <div class="slide-conteudo-centralizado">
             <span class="slide-tag">Análise Avançada</span>
@@ -608,7 +608,7 @@ footer {
         </div>
     </div>
 
-    <!-- SLIDE 7: METADADOS -->
+    
     <div class="slide">
         <div class="slide-conteudo-centralizado">
             <span class="slide-tag">Cabeçalho Binário</span>
@@ -634,7 +634,7 @@ footer {
         </div>
     </div>
 
-    <!-- SLIDE 8: LAUDO FINAL -->
+    
     <div class="slide">
         <div class="slide-conteudo-centralizado">
             <span class="slide-tag" style="background: var(--cor-sucesso); color: #000;">Veredito</span>
@@ -662,6 +662,21 @@ footer {
         </div>
     </div>
 
+    
+    <div class="slide">
+        <div class="slide-conteudo-centralizado">
+            <span class="slide-tag" style="background: linear-gradient(135deg, var(--dourado-claro), var(--dourado-marca)); color: #000;">Feedback</span>
+            <h2 class="slide-titulo">Avalie a Ferramenta</h2>
+            <p class="slide-descricao">Sua opinião é muito importante! Escaneie o QR Code abaixo para responder ao formulário de avaliação.</p>
+            
+            <div style="margin: 20px 0; padding: 16px; background: rgba(9, 9, 17, 0.6); border: 2px solid var(--borda-suave); border-radius: 24px; box-shadow: 0 0 30px rgba(212, 165, 32, 0.15); display: inline-block; transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1); cursor: pointer;" onmouseover="this.style.borderColor='var(--dourado-marca)'; this.style.boxShadow='0 0 40px rgba(212, 165, 32, 0.3)'; this.style.transform='scale(1.05)';" onmouseout="this.style.borderColor='var(--borda-suave)'; this.style.boxShadow='0 0 30px rgba(212, 165, 32, 0.15)'; this.style.transform='scale(1)';">
+                <img src="/assets/qrcode.png" onerror="this.onerror=null; this.src='qrcode.png';" alt="QR Code" style="width: 220px; height: 220px; border-radius: 16px; display: block; object-fit: contain;">
+            </div>
+            
+            <p style="color: var(--texto-mutado); font-size: 14px; max-width: 600px; line-height: 1.6;">Muito obrigado por nos ajudar a melhorar o Kingambit</p>
+        </div>
+    </div>
+
 </div>
 
 <footer>
@@ -684,7 +699,7 @@ var contadorSlides = document.getElementById('contadorSlides');
 var barraProgresso = document.getElementById('barraProgresso');
 
 function atualizarNavegacao() {
-    // Aplicar as classes de transição suave em cada slide
+
     for (var i = 0; i < totalSlides; i++) {
         slides[i].classList.remove('ativo', 'pra-esquerda', 'pra-direita');
         if (i === slideAtual) {
@@ -696,21 +711,21 @@ function atualizarNavegacao() {
         }
     }
     
-    // Esconder o cabeçalho após o slide de introdução (Slide 0) para dar foco total ao tópico!
+
     if (slideAtual > 0) {
         header.classList.add('escondido');
     } else {
         header.classList.remove('escondido');
     }
     
-    // Contador de slides no topo
+
     contadorSlides.textContent = 'Slide ' + (slideAtual + 1) + ' de ' + totalSlides;
     
-    // Barra de progresso do rodapé
+
     var pct = ((slideAtual) / (totalSlides - 1)) * 100;
     barraProgresso.style.width = pct + '%';
     
-    // Botões habilitados/desabilitados
+
     btnAnterior.disabled = (slideAtual === 0);
     
     if (slideAtual === totalSlides - 1) {
@@ -734,12 +749,12 @@ btnProximo.addEventListener('click', function() {
         slideAtual++;
         atualizarNavegacao();
     } else {
-        // Redireciona para o painel principal do sistema
+
         window.location.href = '/';
     }
 });
 
-// Navegação usando as setas do teclado e barra de espaço
+
 document.addEventListener('keydown', function(e) {
     if (e.key === 'ArrowRight' || e.key === ' ') {
         if (slideAtual < totalSlides - 1) {
@@ -756,7 +771,7 @@ document.addEventListener('keydown', function(e) {
     }
 });
 
-// Inicializar navegação
+
 atualizarNavegacao();
 </script>
 </body>
