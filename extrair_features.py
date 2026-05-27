@@ -10,11 +10,11 @@ from PIL import Image, ImageChops
 import cv2
 from tqdm import tqdm
 
-# Configurando logs
+
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
-# Configurações ELA
+
 ELA_QUALIDADE = 90
 ELA_FATOR_AMPLIFICACAO = 15
 ELA_VALOR_MAX = 255
@@ -36,7 +36,7 @@ COLUNAS = [
     "gradiente_desvio",
 ]
 
-# Semente aleatória para consistência
+
 random.seed(42)
 
 def _ela_features(conteudo):
@@ -225,7 +225,7 @@ def processar_dataset(dataset_id, max_por_classe=2000):
     logger.info("==========================================")
 
     if dataset_id == 1:
-        # Dataset 1: archive
+
         base_dir = PROJETO / "archive" / "Data Set 1" / "Data Set 1"
         saida_dir = PROJETO / "archive"
         if not base_dir.exists():
@@ -244,7 +244,7 @@ def processar_dataset(dataset_id, max_por_classe=2000):
             
             logger.info("Dataset 1 [%s] Encontrados -> Reais: %d, Fakes: %d", split_nome, len(reais), len(fakes))
             
-            # Limitar amostras se necessário
+
             random.shuffle(reais)
             random.shuffle(fakes)
             
@@ -257,7 +257,7 @@ def processar_dataset(dataset_id, max_por_classe=2000):
             salvar_features_csv(saida_dir / csv_nome, amostras, saida_dir)
 
     elif dataset_id == 2:
-        # Dataset 2: archive (1)
+
         base_dir = PROJETO / "archive (1)" / "140k Real and Fake Face-ela"
         saida_dir = PROJETO / "archive (1)"
         if not base_dir.exists():
@@ -276,7 +276,7 @@ def processar_dataset(dataset_id, max_por_classe=2000):
             
             logger.info("Dataset 2 [%s] Encontrados -> Reais: %d, Fakes: %d", split_nome, len(reais), len(fakes))
             
-            # Limitar amostras se necessário
+
             random.shuffle(reais)
             random.shuffle(fakes)
             
@@ -289,7 +289,7 @@ def processar_dataset(dataset_id, max_por_classe=2000):
             salvar_features_csv(saida_dir / csv_nome, amostras, saida_dir)
 
     elif dataset_id == 3:
-        # Dataset 3: archive (2)
+
         base_dir = PROJETO / "archive (2)"
         saida_dir = PROJETO / "archive (2)"
         if not base_dir.exists():
@@ -304,11 +304,11 @@ def processar_dataset(dataset_id, max_por_classe=2000):
         random.shuffle(reais)
         random.shuffle(fakes)
 
-        # Limitar se ultrapassar o máximo
+
         reais = reais[:max_por_classe]
         fakes = fakes[:max_por_classe]
 
-        # Fazer splits manuais (70% treino, 15% valid, 15% teste)
+
         def dividir_lista(lista):
             n = len(lista)
             n_train = int(n * 0.70)
@@ -330,7 +330,7 @@ def processar_dataset(dataset_id, max_por_classe=2000):
             salvar_features_csv(saida_dir / csv_nome, amostras, saida_dir)
 
     elif dataset_id == 4:
-        # Dataset 4: archive (3)
+
         base_dir = PROJETO / "archive (3)" / "AI-face-detection-Dataset"
         saida_dir = PROJETO / "archive (3)"
         if not base_dir.exists():
@@ -345,11 +345,11 @@ def processar_dataset(dataset_id, max_por_classe=2000):
         random.shuffle(reais)
         random.shuffle(fakes)
 
-        # Limitar se ultrapassar o máximo
+
         reais = reais[:max_por_classe]
         fakes = fakes[:max_por_classe]
 
-        # Fazer splits manuais (70% treino, 15% valid, 15% teste)
+
         def dividir_lista(lista):
             n = len(lista)
             n_train = int(n * 0.70)
