@@ -41,7 +41,7 @@ ELA_QUALIDADE = 90
 ELA_FATOR_AMPLIFICACAO = 15
 ELA_VALOR_MAX = 255
 
-# SerpAPI removido - busca reversa desabilitada
+
 
 CAMPOS_IA = {
     "software": [
@@ -93,7 +93,7 @@ CAMPOS_ARQUIVO = [
 ]
 
 
-# Helpers do SerpAPI removidos
+
 
 
 def _detectar_tipo(nome):
@@ -635,5 +635,5 @@ def _aberracao_cromatica(img_cv):
 
 
 def busca_reversa(conteudo):
-    # SerpAPI desativado localmente
+
     return []
